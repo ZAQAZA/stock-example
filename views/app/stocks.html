@@ -1,0 +1,19 @@
+<stocks:>
+  <div class="user">
+    <h1>User</h1>
+    <ul>
+      <li>ID - {{_user.id}}</li>
+      <li>Balance - <input value={_user.balance}></li>
+    </ul>
+  </div>
+  <div class="stocks">
+    <h1>Stocks</h1>
+    <ul>
+        {#each _stocks}
+          <li><app:stocks:stock></li>
+        {/}
+    </ul>
+  </div>
+
+<stock:>
+  {.name} - <input value={.price}>
