@@ -4,25 +4,25 @@ market = ->
     inventory: initInventory()
 
 module.exports =
-  init: (model) ->
-    marketObj = market()
-    model.setNull('stocks.elt', marketObj.stocks.elt)
-    model.setNull('stocks.msft', marketObj.stocks.msft)
-    model.setNull('bids.elt', marketObj.requests.elt)
-    model.setNull('bids.msft', marketObj.requests.msft)
-    model.setNull('traders.da135fe4-bbd4-418b-9c52-e03f0d3c4909', marketObj.inventory['da135fe4-bbd4-418b-9c52-e03f0d3c4909'])
-
   subscribe: (model, renderCallback) ->
+    marketObj = market()
     model.subscribe 'stocks', (err, stocks) ->
       model.subscribe 'bids', (err, bids) ->
         model.subscribe 'traders', (err, traders) ->
-          model.set '_stocksIds', stocksIDs(initStocks())
-          model.refList '_stocks', 'stocks', '_stocksIds'
-          model.ref '_bids', bids
+          model.setNull('stocks.elt', marketObj.stocks.elt)
+          model.setNull('stocks.msft', marketObj.stocks.msft)
+          model.setNull('bids.elt', marketObj.requests.elt)
+          model.setNull('bids.msft', marketObj.requests.msft)
+          model.setNull('traders.da135fe4-bbd4-418b-9c52-e03f0d3c4909', marketObj.inventory['da135fe4-bbd4-418b-9c52-e03f0d3c4909'])
+          model.set '_stocksIds', stocksIDs(stocks.get())
+          model.set '_tradersIDs', tradersIDs()
           model.ref '_traders', traders
+          model.ref '_stocks', stocks
+          model.ref '_bids', bids
+          model.refList '_tradersList', traders, '_tradersIDs'
+          model.refList '_stocksList', stocks, '_stocksIds'
+          model.refList '_bidsList', bids, '_stocksIds'
           renderCallback()
-
-  ofri: 'ofri'
 
 initStocks = ->
   elt:
@@ -32,7 +32,7 @@ initStocks = ->
   msft:
     id: 'msft'
     name: 'Microsoft'
-    price: '2.7'
+    price: '2.1'
 
 stocksIDs = (stocks) ->
   (s for s of stocks)
@@ -51,15 +51,20 @@ initBids = ->
     amount: 80
     price: 0.3
   elt:
+    stockID: 'elt'
     buy: []
     sell: [sellElt]
   msft:
+    stockID: 'msft'
     buy: [buyMsft]
     sell: [sellMsft]
 
+tradersIDs = ->
+  ['da135fe4-bbd4-418b-9c52-e03f0d3c4909']
 initInventory = ->
   'da135fe4-bbd4-418b-9c52-e03f0d3c4909':
+    id: 'da135fe4-bbd4-418b-9c52-e03f0d3c4909'
     stocks:
         elt: 101
         msft: 202
-    ballance: 45000
+    balance: 45000

@@ -1,4 +1,4 @@
 { view } = require './index'
 
 # View Functions
-view.fn 'example', (out) -> out
+view.fn 'traderBalance', (trader) -> trader.balance

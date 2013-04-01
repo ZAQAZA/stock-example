@@ -1,0 +1,18 @@
+<traders:>
+  <div class="traders">
+    <h1>Traders Inventory</h1>
+    {#each _tradersList as :trader}
+      <app:traders:trader>
+    {/}
+  </div>
+
+<trader:>
+  <h2>{:trader.id}</h2>
+  <div class="inventory">
+    <ul>
+      {#each _stocks }
+        <li>{.id} - <input value={:trader.stocks[.id]}></li>
+      {/}
+    </ul>
+    Balance - <input value={:trader.balance}>
+  </div>

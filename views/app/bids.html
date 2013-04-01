@@ -1,0 +1,41 @@
+<bids:>
+  <div class="bids">
+    <h1>Bids</h1>
+    {#each _bidsList}
+      <h2>{.stockID}</h2>
+      <app:bids:stockBids>
+    {/}
+  </div>
+
+<stockBids:>
+  <h3>Buy</h3>
+  <div class="buy">
+    <ul>
+      {#each .buy}
+        <li><app:bids:bid></li>
+      {/}
+    </ul>
+  </div>
+  <h3>Sell</h3>
+  <div class="sell">
+    <ul>
+      {#each .sell}
+        <li><app:bids:bid></li>
+      {/}
+    </ul>
+  </div>
+
+<bid:>
+  Amount: <input value={.amount}>  -  Price: <input value={.price}>
+
+<add:>
+  <h1>Place your bid</h1>
+  <form x-bind="submit: bid">
+    <ul>
+      <li>Type - <input value={_bidding.type}></li>
+      <li>Stock - <input value={_bidding.stock}></li>
+      <li>Amount - <input value={_bidding.amount}></li>
+      <li>Price - <input value={_bidding.price}></li>
+      <li><input type="submit" value="Bid"></li>
+      </ul>
+  </form>

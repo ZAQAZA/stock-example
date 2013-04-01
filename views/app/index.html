@@ -1,9 +1,14 @@
+<import: src="dashboard">
+<import: src="user">
 <import: src="stocks">
+<import: src="bids">
+<import: src="traders">
+
 
 <Body:>
   <ui:connectionAlert>
   {#if _loggedIn}
-    <app:stocks:stocks />
+    <app:dashboard:dashboard />
   {else}
     <derby-auth:login />
     <derby-auth:register />
