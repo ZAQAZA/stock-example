@@ -24,7 +24,8 @@ store = module.exports.pvStore = derby.createStore
   listen: server
   db:
     type: 'Mongo'
-    uri: 'mongodb://localhost/stock-example'
+    #uri: 'mongodb://localhost/stock-example'
+    uri: 'mongodb://nodejitsu:4c5fdb57ef0874339e8fa287e59ad2ff@linus.mongohq.com:10070/nodejitsudb1088662345'
     safe: true
 
 auth.store store
