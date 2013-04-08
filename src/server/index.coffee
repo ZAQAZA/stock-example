@@ -5,6 +5,7 @@ derby = require 'derby'
 racer = require 'racer'
 auth = require 'derby-auth'
 app = require '../app'
+matcher = require '../app/matcher'
 serverError = require './serverError'
 io = racer.io
 
@@ -24,11 +25,12 @@ store = module.exports.pvStore = derby.createStore
   listen: server
   db:
     type: 'Mongo'
-    #uri: 'mongodb://localhost/stock-example'
-    uri: 'mongodb://nodejitsu:4c5fdb57ef0874339e8fa287e59ad2ff@linus.mongohq.com:10070/nodejitsudb1088662345'
+    uri: 'mongodb://localhost/stock-example'
+    #uri: 'mongodb://nodejitsu:4c5fdb57ef0874339e8fa287e59ad2ff@linus.mongohq.com:10070/nodejitsudb1088662345'
     safe: true
 
 auth.store store
+matcher.subscribe store
 
 ONE_YEAR = 1000 * 60 * 60 * 24 * 365
 root = path.dirname path.dirname __dirname

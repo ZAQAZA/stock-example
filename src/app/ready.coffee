@@ -1,6 +1,7 @@
 app = require '../app'
 config = require './config'
 trader = require './trader'
+bidder = require './bidding'
 { view, ready } = require './index'
 
 #############
@@ -29,12 +30,8 @@ ready (model) ->
   @reload = -> window.location.reload()
 
   @bid = ->
-    newBid =
-      user: trader.userID(model)
-      amount: model.get('_bidding.amount')
-      price: model.get('_bidding.price')
-    model.push('_bids.' + model.get('_bidding.stock') + '.' + model.get('_bidding.type'), newBid)
+    bidder.bid(model)
 
+  @lalala = ->
+    'ofri'
 
-  #@bid = ->
-  #  model.set('_bids.elt.sell.0.amount', +model.get('_bids.elt.sell.0.amount') + 1)

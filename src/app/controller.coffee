@@ -6,9 +6,13 @@ trader = require './trader'
 controller =
   index: (page, model) ->
 
-    market.subscribe model, ->
-      trader.subscribe model, (userExist) ->
+    trader.subscribe model, (userID) ->
+      market.subscribe model, userID, ->
         page.render 'index'
+
+  add_bid: (page, model) ->
+    alert 'adding bid'
+    page.render 'user'
 
 module.exports = controller
 

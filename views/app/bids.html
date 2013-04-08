@@ -1,32 +1,17 @@
 <bids:>
   <div class="bids">
     <h1>Bids</h1>
-    {#each _bidsList}
-      <h2>{.stockID}</h2>
-      <app:bids:stockBids>
-    {/}
-  </div>
-
-<stockBids:>
-  <h3>Buy</h3>
-  <div class="buy">
     <ul>
-      {#each .buy}
-        <li><app:bids:bid></li>
-      {/}
-    </ul>
-  </div>
-  <h3>Sell</h3>
-  <div class="sell">
-    <ul>
-      {#each .sell}
+      {#each _bidsList as :bid}
         <li><app:bids:bid></li>
       {/}
     </ul>
   </div>
 
 <bid:>
-  Amount: <input value={.amount}>  -  Price: <input value={.price}>
+  <span class="{bidClass(:bid)}">
+    {{users[.user].auth.local.username}} wants to {{.type}} {{.origAmount}} <b>{{.stock}}</b> stocks for $<input value="{.price}"> each - (<input value="{.amount}"> remains to be execute).
+  </span>
 
 <add:>
   <h1>Place your bid</h1>
@@ -37,5 +22,6 @@
       <li>Amount - <input value={_bidding.amount}></li>
       <li>Price - <input value={_bidding.price}></li>
       <li><input type="submit" value="Bid"></li>
+      <li><a href="/add_bid">Click</a></li>
       </ul>
   </form>

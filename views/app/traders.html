@@ -10,7 +10,7 @@
   <h2>{:trader.id}</h2>
   <div class="inventory">
     <ul>
-      {#each _stocks }
+      {#each _stocksList }
         <li>{.id} - <input value={:trader.stocks[.id]}></li>
       {/}
     </ul>
