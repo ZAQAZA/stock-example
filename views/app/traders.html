@@ -1,18 +1,19 @@
 <traders:>
   <div class="traders">
     <h1>Traders Inventory</h1>
-    {#each _tradersList as :trader}
+    {#each _users as :user}
       <app:traders:trader>
     {/}
   </div>
 
 <trader:>
-  <h2>{:trader.id}</h2>
-  <div class="inventory">
-    <ul>
-      {#each _stocksList }
-        <li>{.id} - <input value={:trader.stocks[.id]}></li>
-      {/}
-    </ul>
-    Balance - <input value={:trader.balance}>
-  </div>
+  {{#if isRegistered(:user)}}
+    <h2>{:user.id}</h2>
+    <div class="inventory">
+      <ul>
+        {#each :user.stockHoldings as :holding }
+          <li>{.stock} - <input value={:holding.amount}></li>
+        {/}
+      </ul>
+    </div>
+  {{/}}

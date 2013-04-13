@@ -12,6 +12,7 @@
   <span class="{bidClass(:bid)}">
     {{users[.user].auth.local.username}} wants to {{.type}} {{.origAmount}} <b>{{.stock}}</b> stocks for $<input value="{.price}"> each - (<input value="{.amount}"> remains to be execute).
   </span>
+  <input class="sml" x-bind="click: removeBid" type="submit" value="x">
 
 <add:>
   <h1>Place your bid</h1>
@@ -22,6 +23,5 @@
       <li>Amount - <input value={_bidding.amount}></li>
       <li>Price - <input value={_bidding.price}></li>
       <li><input type="submit" value="Bid"></li>
-      <li><a href="/add_bid">Click</a></li>
       </ul>
   </form>

@@ -11,8 +11,7 @@ matcher = (store, bids, bid) ->
   unless matchedBid
     console.log 'no match found'
     return
-  if execute bid, matchedBid
-    update store, b for b in [bid, matchedBid]
+  execute store, bid, matchedBid
 
 findMatch = (bids, bid) ->
   match = bids[id] for id of bids when doesMatch(bids[id], bid)
@@ -36,14 +35,36 @@ sort = (bid1, bid2) ->
   sell: sell
   buy: buy
 
-execute = (bid1, bid2) ->
-  amount = min bid1.amount, bid2.amount
-  bid1.amount -= amount
-  bid2.amount -= amount
-  amount > 0
+execute = (store, bid1, bid2) ->
+  {sell, buy} = sort bid1, bid2
+  amount = min sell.amount, buy.amount
+  sell.amount -= amount
+  buy.amount -= amount
+  sum = amount * min sell.price, buy.price
+  stock = sell.stock
+  # think about a db transaction.. the following operations should execute together
+  if amount > 0
+    updateBid store, b for b in [sell, buy]
+    updateBalance store, sell.user, sum
+    updateBalance store, buy.user, -sum
+    updateHolding store, sell.user, stock, -amount
+    updateHolding store, buy.user, stock, amount
 
-update = (store, bid) ->
+updateBid = (store, bid) ->
   store.set 'bids.'+bid.id, bid
+
+updateBalance = (store, userID, delta) ->
+  balancePath = "users.#{userID}.balance"
+  store.get balancePath, (err, b) ->
+    store.set balancePath, b+delta
+
+updateHolding = (store, userID, stock, delta) ->
+  update = (s) ->
+    s.amount += delta
+  holdingPath = "users.#{userID}.stockHoldings"
+  store.get holdingPath, (err, h) ->
+    update s for s in h when s.stock == stock
+    store.set holdingPath, h
 
 min = (a,b) ->
   if a<=b then a else b

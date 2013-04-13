@@ -11,4 +11,6 @@ module.exports =
       price: +model.get('_bidding.price')
       stock: model.get('_bidding.stock')
     model.push('_bidsList', newBid)
-    console.log 'bidding'
+
+  remove: (model, e, el, next) ->
+    bid = e.at().remove()

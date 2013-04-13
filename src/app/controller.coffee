@@ -7,7 +7,10 @@ controller =
   index: (page, model) ->
 
     trader.subscribe model, (userID) ->
-      market.subscribe model, userID, ->
+      if userID
+        market.subscribe model, userID, ->
+          page.render 'index'
+      else
         page.render 'index'
 
   add_bid: (page, model) ->

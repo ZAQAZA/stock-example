@@ -32,6 +32,6 @@ ready (model) ->
   @bid = ->
     bidder.bid(model)
 
-  @lalala = ->
-    'ofri'
+  @removeBid = (e, el, next) ->
+    bidder.remove(model, e, el, next)
 

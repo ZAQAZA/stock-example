@@ -2,7 +2,7 @@
   <div class="user">
     <h1>User - <a href="/logout">Logout</a></h1>
     <ul>
-      <li>ID - {{_user.id}}</li>
-      <li>Balance - <b>{traderBalance(_traders[_user.id])}</b>
+      <li>{{_user.auth.local.username}} - {{_user.id}}</li>
+      <li>Balance - <input value="{_balance}">
     </ul>
   </div>
