@@ -32,6 +32,9 @@ store = module.exports.pvStore = derby.createStore
 auth.store store
 matcher.subscribe store
 
+store.query.expose 'bids', 'all', () ->
+  this.where('amount').gt(-1);
+
 ONE_YEAR = 1000 * 60 * 60 * 24 * 365
 root = path.dirname path.dirname __dirname
 publicPath = path.join root, 'public'
@@ -41,8 +44,8 @@ strategies =
   facebook:
     strategy: require("passport-facebook").Strategy
     conf:
-      clientID: process.env.FACEBOOK_KEY
-      clientSecret: process.env.FACEBOOK_SECRET
+      clientID: 'aaa' #process.env.FACEBOOK_KEY
+      clientSecret: 'aaa' #process.env.FACEBOOK_SECRET
 
 options =
   domain: process.env.BASE_URL || 'http://localhost:3000'

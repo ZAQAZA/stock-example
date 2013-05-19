@@ -10,7 +10,10 @@ module.exports =
       amount: +model.get('_bidding.amount')
       price: +model.get('_bidding.price')
       stock: model.get('_bidding.stock')
-    model.push('_bidsList', newBid)
+    model.push('_bids', newBid)
 
   remove: (model, e, el, next) ->
-    bid = e.at().remove()
+    id = e.at().get('id')
+    e.at().remove()
+    model.del('bids.' + id)
+

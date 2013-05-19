@@ -5,7 +5,6 @@ trader = require './trader'
 
 controller =
   index: (page, model) ->
-
     trader.subscribe model, (userID) ->
       if userID
         market.subscribe model, userID, ->

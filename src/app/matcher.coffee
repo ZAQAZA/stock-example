@@ -47,8 +47,8 @@ execute = (store, bid1, bid2) ->
     updateBid store, b for b in [sell, buy]
     updateBalance store, sell.user, sum
     updateBalance store, buy.user, -sum
-    updateHolding store, sell.user, stock, -amount
-    updateHolding store, buy.user, stock, amount
+    #updateHolding store, sell.user, stock, -amount
+    #updateHolding store, buy.user, stock, amount
 
 updateBid = (store, bid) ->
   store.set 'bids.'+bid.id, bid

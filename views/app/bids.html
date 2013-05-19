@@ -2,17 +2,19 @@
   <div class="bids">
     <h1>Bids</h1>
     <ul>
-      {#each _bidsList as :bid}
+      {#each _bids as :bid}
         <li><app:bids:bid></li>
       {/}
     </ul>
   </div>
 
 <bid:>
-  <span class="{bidClass(:bid)}">
-    {{users[.user].auth.local.username}} wants to {{.type}} {{.origAmount}} <b>{{.stock}}</b> stocks for $<input value="{.price}"> each - (<input value="{.amount}"> remains to be execute).
-  </span>
-  <input class="sml" x-bind="click: removeBid" type="submit" value="x">
+  <div class=bid>
+    <span class="{bidClass(:bid)}">
+      {{users[.user].auth.local.username}} wants to {{.type}} {{.origAmount}} <b>{{.stock}}</b> stocks for $<input value="{.price}"> each - (<input value="{.amount}"> remains to be execute).
+    </span>
+    <input class="sml" x-bind="click: removeBid" type="submit" value="x">
+  </div>
 
 <add:>
   <h1>Place your bid</h1>

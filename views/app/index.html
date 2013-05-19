@@ -2,8 +2,11 @@
 <import: src="user">
 <import: src="stocks">
 <import: src="bids">
-<import: src="traders">
+<import: src="holdings">
 
+
+<Head:>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet">
 
 <Body:>
   <ui:connectionAlert>
@@ -15,7 +18,8 @@
   {/}
 
 <Scripts:>
-  <script type=text/javascript src=/js/jquery.js></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
   <script type=text/javascript>
     var _gaq = _gaq || [];
     _gaq.push(['_setAccount', 'FILL IN GA NUMBER']);

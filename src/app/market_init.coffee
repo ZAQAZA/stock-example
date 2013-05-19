@@ -1,41 +1,45 @@
-market = ->
-    stocks: initStocks()
-    requests: initBids()
-
 module.exports =
   subscribe: (model, userID, renderCallback) ->
-    marketObj = market()
-    model.subscribe 'stocks', (err, stocks) ->
-      model.subscribe 'bids', (err, bids) ->
-        model.subscribe 'ids', (err, ids) ->
+    userPath = 'users.' + userID
+    model.subscribe 'ids.stocks.ids', 'ids.bids.ids', (err, stocksIds, bidsIds) ->
+        model.subscribe 'stocks', (err, stocks) ->
+          model.subscribe 'bids', (err, bids) ->
+            model.subscribe userPath, (err, user) ->
 
-          model.setNull('stocks.elt', marketObj.stocks.elt)
-          model.setNull('stocks.msft', marketObj.stocks.msft)
-          model.set '_stocksIds', collectionIDs(stocks.get())
-          model.ref '_stocks', stocks
-          model.refList '_stocksList', stocks, '_stocksIds'
+              initMarketIfEmpty model
+              initUser model, userID
 
-          ids.setNull 'bids.ids', []
-          model.refList '_bidsList', bids, 'ids.bids.ids'
+              model.refList '_stocks', stocks, stocksIds
+              model.refList '_bids', bids, bidsIds
+              model.refList '_userHoldings', user.at('stockHoldings'), userPath + '.ids.holdings'
+              model.ref '_user', user
 
-          initUser model, userID
-          renderCallback()
+              renderCallback()
+
+initMarketIfEmpty = (model) ->
+  unless model.get('stocks')
+    stocks = initStocks()
+    model.setNull 'stocks.elt', stocks.elt
+    model.setNull 'stocks.msft', stocks.msft
+    model.set 'ids.stocks.ids', collectionIDs(model.get('stocks'))
+    model.set 'ids.bids.ids', collectionIDs(model.get('bids'))
 
 initUser = (model, userID) ->
-  model.setNull('users.'+userID+'.stockHoldings', initStockHoldings())
-  model.setNull('users.'+userID+'.balance', 1000000)
-  model.ref '_holdings', 'users.'+userID+'.stockHoldings'
-  model.ref '_balance', 'users.'+userID+'.balance'
+  unless model.get('users.'+userID+'.stockHoldings')
+    model.setNull('users.'+userID+'.stockHoldings', initStockHoldings())
+    model.set 'users.'+userID+'.ids.holdings', collectionIDs(model.get('users.'+userID+'.stockHoldings'))
+    model.setNull('users.'+userID+'.balance', parseFloat(1000.0))
+
 
 initStocks = ->
   elt:
     id: 'elt'
     name: 'Elit'
-    price: '1.1'
+    price: 1.1
   msft:
     id: 'msft'
     name: 'Microsoft'
-    price: '2.1'
+    price: 2.1
 
 collectionIDs = (collection) ->
   (s for s of collection)
@@ -67,10 +71,11 @@ initBids = ->
     stock: 'msft'
 
 initStockHoldings = ->
-  [
-      stock: 'elt'
-      amount: 100
-    ,
-      stock: 'msft'
-      amount: 100
-  ]
+  h00001:
+    id: 'h00001'
+    stock: 'elt'
+    amount: 100
+  h00002:
+    id: 'h00002'
+    stock: 'msft'
+    amount: 100
