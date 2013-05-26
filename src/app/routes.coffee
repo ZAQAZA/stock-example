@@ -3,5 +3,6 @@ controller = require './controller'
 
 ## ROUTES ##
 
-get '/', controller.index
-get '/add_bid', controller.add_bid
+get '/', controller.portal
+get '/admin', controller.admin
+get '/stocks', controller.stocks

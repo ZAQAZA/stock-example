@@ -17,15 +17,20 @@ module.exports =
               renderCallback()
 
 initMarketIfEmpty = (model) ->
-  unless model.get('stocks')
+  unless Object.keys(model.get('stocks')).length
     stocks = initStocks()
     model.setNull 'stocks.elt', stocks.elt
     model.setNull 'stocks.msft', stocks.msft
+    model.setNull 'stocks.teva', stocks.teva
+    model.setNull 'stocks.emc', stocks.emc
+    model.setNull 'stocks.smng', stocks.smng
+    model.setNull 'stocks.ibm', stocks.ibm
+    model.setNull 'stocks.appl', stocks.appl
     model.set 'ids.stocks.ids', collectionIDs(model.get('stocks'))
     model.set 'ids.bids.ids', collectionIDs(model.get('bids'))
 
 initUser = (model, userID) ->
-  unless model.get('users.'+userID+'.stockHoldings')
+  unless Object.keys(model.get('users.'+userID+'.stockHoldings')).length
     model.setNull('users.'+userID+'.stockHoldings', initStockHoldings())
     model.set 'users.'+userID+'.ids.holdings', collectionIDs(model.get('users.'+userID+'.stockHoldings'))
     model.setNull('users.'+userID+'.balance', parseFloat(1000.0))
@@ -36,10 +41,37 @@ initStocks = ->
     id: 'elt'
     name: 'Elit'
     price: 1.1
+    change: -0.4
   msft:
     id: 'msft'
     name: 'Microsoft'
     price: 2.1
+    change: 0.2
+  teva:
+    id: 'teva'
+    name: 'Teva Inc.'
+    price: 4.2
+    change: -1.4
+  emc:
+    id: 'emc'
+    name: 'EMC2'
+    price: 11.7
+    change: 3.6
+  smng:
+    id: 'smng'
+    name: 'Samanage'
+    price: 0.3
+    change: 0.0
+  ibm:
+    id: 'ibm'
+    name: 'IBM'
+    price: 6.33
+    change: 4.0
+  appl:
+    id: 'appl'
+    name: 'Apple Inc.'
+    price: 13.8
+    change: 2.1
 
 collectionIDs = (collection) ->
   (s for s of collection)

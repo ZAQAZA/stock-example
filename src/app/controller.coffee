@@ -1,20 +1,35 @@
 derby = require 'derby'
 market = require './market_init'
 trader = require './trader'
+gridify = require './gridify'
+
+marketContext = (model, callback) ->
+  trader.subscribe model, (userID) ->
+    if userID
+      market.subscribe model, userID, ->
+        callback()
+    else
+      callback()
+
 
 
 controller =
-  index: (page, model) ->
-    trader.subscribe model, (userID) ->
-      if userID
-        market.subscribe model, userID, ->
-          page.render 'index'
-      else
-        page.render 'index'
+  portal: (page, model) ->
+    marketContext model, () ->
+      model.set '_registered', true
+      model.set '_room', 'portal'
+      page.render 'portal'
 
-  add_bid: (page, model) ->
-    alert 'adding bid'
-    page.render 'user'
+  stocks: (page, model) ->
+    marketContext model, () ->
+      gridify.makeStocksGrid model
+      model.set '_room', 'stocks'
+      page.render 'portal'
+
+  admin: (page, model) ->
+    marketContext model, () ->
+      model.set '_room', 'admin'
+      page.render 'admin'
 
 module.exports = controller
 

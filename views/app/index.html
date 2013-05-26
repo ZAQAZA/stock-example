@@ -1,35 +1,22 @@
-<import: src="dashboard">
-<import: src="user">
-<import: src="stocks">
-<import: src="bids">
-<import: src="holdings">
-
+<import: src="admin">
+<import: src="portal">
 
 <Head:>
-  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+    }
+  </style>
+  <link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
 
 <Body:>
-  <ui:connectionAlert>
-  {#if _loggedIn}
-    <app:dashboard:dashboard />
-  {else}
-    <derby-auth:login />
-    <derby-auth:register />
-  {/}
+  <h1>Something went wrong</h1>
 
 <Scripts:>
   <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
-  <script type=text/javascript>
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', 'FILL IN GA NUMBER']);
-
-    (function() {
-      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-  </script>
+  <script src="/js/bootstrap.min.js"></script>
 
 <Tail:>
   <noscript>

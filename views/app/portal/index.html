@@ -1,0 +1,15 @@
+<import: src="../baseLayout">
+<import: src="portalLayout">
+<import: src="dashboard">
+<import: src="stocks">
+
+<Body:>
+  <app:baseLayout:baseLayout>
+    {#if equal(_room, 'stocks')}
+      <app:portalLayout:portalLayout title="Stocks">
+        <app:stocks:stocks />
+      </app:portalLayout:portalLayout>
+    {else}
+      <app:dashboard:dashboard />
+    {/}
+  </app:baseLayout:baseLayout>

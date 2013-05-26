@@ -1,0 +1,15 @@
+<stocks:>
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr><th>Sym</th><th>Name</th><th>Price</th><th>Change</th></tr>
+    <tbody>
+      {#each _stocks}
+        <app:stock>
+      {/}
+    </tbody>
+  </table>
+
+<stock:>
+  <tr class={stockRowClass(.)}>
+    <td>{.id}</td><td>{.name}</td><td>{.price}</td><td>{.change}%</td>
+  </tr>

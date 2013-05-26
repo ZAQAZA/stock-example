@@ -35,3 +35,5 @@ ready (model) ->
   @removeBid = (e, el, next) ->
     bidder.remove(model, e, el, next)
 
+  @register = ->
+    model.set '_registered', !(model.get '_registered')
