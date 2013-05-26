@@ -30,7 +30,7 @@ initMarketIfEmpty = (model) ->
     model.set 'ids.bids.ids', collectionIDs(model.get('bids'))
 
 initUser = (model, userID) ->
-  unless Object.keys(model.get('users.'+userID+'.stockHoldings')).length
+  unless model.get('users.'+userID+'.stockHoldings') && Object.keys(model.get('users.'+userID+'.stockHoldings')).length
     model.setNull('users.'+userID+'.stockHoldings', initStockHoldings())
     model.set 'users.'+userID+'.ids.holdings', collectionIDs(model.get('users.'+userID+'.stockHoldings'))
     model.setNull('users.'+userID+'.balance', parseFloat(1000.0))
