@@ -10,3 +10,8 @@ view.fn 'stockRowClass', (stock) ->
     "text-error"
   else
     "text-info"
+
+view.fn 'priceHandler',
+    get: (price) -> price
+    set: (price) ->
+      [if isNaN(parseFloat price) then 0 else parseFloat price]
