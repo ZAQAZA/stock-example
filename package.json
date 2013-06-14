@@ -7,7 +7,7 @@
     "url": ""
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "./node_modules/coffee-script/bin/coffee server.coffee"
   },
   "dependencies": {
     "derby": "0.5.x",
@@ -16,7 +16,9 @@
     "livedb-mongo": "~0.1.0",
     "racer-browserchannel": "~0.1.0",
     "connect-mongo": "~0.3.2",
-    "derby-ui-boot": "0.1.x"
+    "derby-ui-boot": "0.1.x",
+    "coffeeify": "~0.4.0",
+    "coffee-script": "~1.6.2"
   },
   "engines": {
     "node": "0.10.x"
