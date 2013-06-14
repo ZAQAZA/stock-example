@@ -22,7 +22,7 @@ else
 redis.select process.env.REDIS_DB || 1
 # Get Mongo configuration 
 mongoUrl = process.env.MONGO_URL || process.env.MONGOHQ_URL ||
-  'mongodb://localhost:27017/project'
+  'mongodb://localhost:27017/stock05'
 
 # The store creates models and syncs data
 store = derby.createStore
