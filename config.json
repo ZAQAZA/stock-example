@@ -1,7 +1,7 @@
 {
 
   "MONGO_URL_LOCAL": "mongodb://localhost:27017/stock05",
-  "MONGO_URL": "mongodb://ofridagan:11MilkDagan@linus.mongohq.com:10019/app16306420",
+  "MONGO_URL_BLA": "mongodb://ofridagan:11MilkDagan@linus.mongohq.com:10019/app16306420",
   "REDIS_HOST": "redis-16769.us-east-1-4.1.ec2.garantiadata.com",
   "REDIS_PORT": 16769,
   "REDIS_PASSWORD": "O85OgyU4RGFd8d3n",
