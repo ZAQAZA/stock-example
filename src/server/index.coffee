@@ -78,7 +78,7 @@ options =
     successRedirect: '/'
     #usernameField: 'email'
   site:
-    domain: 'http://localhost:3000'
+    domain: 'http://mysterious-coast-6929.herokuapp.com'
     name: 'My Site'
     email: 'admin@mysite.com'
   smtp:
