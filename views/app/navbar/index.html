@@ -1,0 +1,25 @@
+<navbar:>
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+      <div class="container">
+        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="brand" href="/">Stock.JS</a>
+        <div class="nav-collapse">
+          <ul class="nav">
+            <!-- Other templates are included like HTML elements -->
+            <app:navLink title="Stocks" href="/stocks">
+            <app:navLink title="Admin" href="/admin">
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<navLink:>
+  <li class="{{#if equal($url, @href)}}active{{/}}">
+    <a href="{{@href}}">{{@title}}</a>
+  </li>

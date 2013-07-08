@@ -4,7 +4,7 @@ derby = require('derby')
 racerBrowserChannel = require('racer-browserchannel')
 LiveDbMongo = require('livedb-mongo').LiveDbMongo
 MongoStore = require('connect-mongo')(express)
-app = require('../app')
+app = require('../auth')
 serverError = require('./serverError')
 mongoskin = require('mongoskin')
 publicDir = require('path').join __dirname + '/../../public'
@@ -38,7 +38,7 @@ Setup a hash of strategies you'll use - strategy objects and their configuration
 Note, API keys should be stored as environment variables (eg, process.env.FACEBOOK_KEY) or you can use nconf to store
 them in config.json, which we're doing here
 ###
-auth = require('derby-auth')
+auth = require("../../../index.js") # change to `require('derby-auth')` in your project
 strategies =
   facebook:
     strategy: require("passport-facebook").Strategy
@@ -85,6 +85,7 @@ options =
     service: 'Gmail'
     user: 'admin@mysite.com'
     pass: 'abc'
+
 ###
 (2)
 Initialize the store. This will add utility accessControl functions (see store.coffee for more details), as well
@@ -100,7 +101,7 @@ expressApp
     .use(express['static'](publicDir))
     .use(express.cookieParser())
     .use(express.session({
-        secret: conf.get('SESSION_SECRET') || 'SOME SECRET SECRET'
+        secret: conf.get('SESSION_SECRET') || 'YOUR SECRET HERE'
         store: new MongoStore({
             url: mongoUrl
             safe: true
@@ -121,4 +122,3 @@ expressApp
     .use(serverError())
 
 expressApp.all "*", (req, res, next) -> next("404: #{req.url}")
-

@@ -1,0 +1,35 @@
+<import: src="user">
+<import: src="stocks">
+<import: src="bids">
+<import: src="holdings">
+
+<dashboard:>
+  <div class="container">
+    <div class="row-fluid">
+      <div class="span12">
+        <app:user:user />
+      </div>
+    </div>
+    <div class="row-fluid">
+      <div class="span6">
+        <app:stocks:stocks />
+      </div>
+<!--
+      <div class="span6">
+        <app:holdings:holdings />
+      </div>
+-->
+    </div>
+<!--
+    <div class="row-fluid">
+      <div class="span12">
+        <app:bids:bids />
+      </div>
+    </div>
+    <div class="row-fluid">
+      <div class="span12">
+        <app:bids:add />
+      </div>
+    </div>
+-->
+  </div>
