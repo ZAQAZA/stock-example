@@ -13,7 +13,7 @@ conf = require('nconf')
 expressApp = module.exports = express()
 
 # Get Redis configuration
-if (process.env.REDISCLOUD_URL) {
+if process.env.REDISCLOUD_URL
   redisUrl = require('url').parse(process.env.REDISCLOUD_URL)
   redis = require('redis').createClient(redisUrl.port, redisUrl.hostname)
   redis.auth(redisUrl.auth.split(":")[1])
