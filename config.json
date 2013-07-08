@@ -6,7 +6,7 @@
   "REDIS_PORT": 16769,
   "REDIS_PASSWORD": "O85OgyU4RGFd8d3n",
   "REDIS_DB": 8,
-  "PORT": 3000,
+  "PORT": 80,
   "NODE_ENV": "development",
   "SITE_NAME": "Stock Example",
   "SITE_EMAIL": "ofridagan@gmail.com",
