@@ -1,6 +1,7 @@
 {
 
-  "MONGO_URL": "mongodb://localhost:27017/stock05",
+  "MONGO_URL_LOCAL": "mongodb://localhost:27017/stock05",
+  "MONGO_URL": "mongodb://ofridagan:11MilkDagan@linus.mongohq.com:10019/app16306420",
   "REDIS_DB": 8,
   "PORT": 3000,
   "NODE_ENV": "development",
