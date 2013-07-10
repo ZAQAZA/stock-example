@@ -13,19 +13,22 @@ conf = require('nconf')
 expressApp = module.exports = express()
 
 # Get Redis configuration
-#if process.env.REDISCLOUD_URL
-redisUrl = require('url').parse(process.env.REDISCLOUD_URL)
-redis = require('redis').createClient(redisUrl.port, redisUrl.hostname)
-redis.auth(redisUrl.auth.split(":")[1])
-  #else if conf.get('REDIS_HOST')
-  #redis = require("redis").createClient conf.get('REDIS_PORT'), conf.get('REDIS_HOST')
-  #redis.auth conf.get('REDIS_PASSWORD')
-  #else
-  #redis = require("redis").createClient()
+if process.env.REDISCLOUD_URL
+  console.log "starting redis"
+  redisUrl = require('url').parse(process.env.REDISCLOUD_URL)
+  redis = require('redis').createClient(redisUrl.port, redisUrl.hostname)
+  redis.auth(redisUrl.auth.split(":")[1])
+  console.log "finished redis"
+else if conf.get('REDIS_HOST')
+  redis = require("redis").createClient conf.get('REDIS_PORT'), conf.get('REDIS_HOST')
+  redis.auth conf.get('REDIS_PASSWORD')
+else
+  console.log 'AAA'
+  redis = require("redis").createClient()
 redis.select conf.get('REDIS_DB')
 
 # Get Mongo configuration
-mongoUrl = conf.get('MONGO_URL')
+mongoUrl = if conf.get('NODE_ENV') is "development" then conf.get('MONGO_URL_LOCAL') else conf.get('MONGO_URL_REMOTE')
 mongo = mongoskin.db "#{mongoUrl}?auto_reconnect", {safe: true}
 
 # The store creates models and syncs data
@@ -82,7 +85,7 @@ options =
     successRedirect: '/'
     #usernameField: 'email'
   site:
-    domain: 'http://mysterious-coast-6929.herokuapp.com'
+    domain: if conf.get('NODE_ENV') is "development" then conf.get('LOCAL_DOMAIN') else conf.get('REMOTE_DOMAIN')
     name: 'My Site'
     email: 'admin@mysite.com'
   smtp:
