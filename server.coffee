@@ -2,7 +2,8 @@
 conf = require('nconf')
 conf.argv().file({ file: __dirname + "/config.json" }).env()
 
-port = if conf.get('NODE_ENV') is 'production' then '80' else conf.get('PORT')
+# conf.get('PORT') will be the environment variable set by heroku (not 80)
+port = if conf.get('NODE_ENV') is 'production' then conf.get('PORT') else conf.get('LOCAL_PORT')
 require('derby').run __dirname + '/src/server/index.coffee', port
 
 ###

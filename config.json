@@ -5,7 +5,7 @@
   "MONGO_URL_REMOTE": "mongodb://ofridagan:11MilkDagan@linus.mongohq.com:10019/app16306420",
   "LOCAL_DOMAIN": "http://localhost:3000",
   "REMOTE_DOMAIN": "http://mysterious-coast-6929.herokuapp.com",
-  "PORT": 80,
+  "LOCAL_PORT": 3000,
   "REDIS_PORT": 16769,
   "REDIS_DB": 8,
   "SITE_NAME": "Stock Example",
