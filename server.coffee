@@ -2,7 +2,8 @@
 conf = require('nconf')
 conf.argv().file({ file: __dirname + "/config.json" }).env()
 
-require('derby').run __dirname + '/src/server/index.coffee', conf.get('PORT') || 3000
+port = if conf.get('NODE_ENV') is 'production' then '80' else conf.get('PORT')
+require('derby').run __dirname + '/src/server/index.coffee', port
 
 ###
 #look at this for debugg

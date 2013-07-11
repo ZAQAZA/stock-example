@@ -1,13 +1,13 @@
 {
 
-  "NODE_ENV": "production",
+  "NODE_ENV": "development",
   "MONGO_URL_LOCAL": "mongodb://localhost:27017/stock05",
   "MONGO_URL_REMOTE": "mongodb://ofridagan:11MilkDagan@linus.mongohq.com:10019/app16306420",
   "LOCAL_DOMAIN": "http://localhost:3000",
   "REMOTE_DOMAIN": "http://mysterious-coast-6929.herokuapp.com",
+  "PORT": 3000,
   "REDIS_PORT": 16769,
   "REDIS_DB": 8,
-  "PORT": 3000,
   "SITE_NAME": "Stock Example",
   "SITE_EMAIL": "ofridagan@gmail.com",
 
