@@ -1,3 +1,4 @@
 node_modules/*
 public/gen/*
 .DS_Store
+dump.rdb
