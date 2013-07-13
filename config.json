@@ -1,6 +1,5 @@
 {
 
-  "NODE_ENV": "production",
   "MONGO_URL_LOCAL": "mongodb://localhost:27017/stock05",
   "MONGO_URL_REMOTE": "mongodb://ofridagan:11MilkDagan@linus.mongohq.com:10019/app16306420",
   "LOCAL_DOMAIN": "http://localhost:3000",
