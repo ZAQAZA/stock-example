@@ -14,7 +14,6 @@ expressApp = module.exports = express()
 
 # Get Redis configuration
 if process.env.REDISCLOUD_URL
-  console.log "starting redis"
   redisUrl = require('url').parse(process.env.REDISCLOUD_URL)
   redis = require('redis').createClient(redisUrl.port, redisUrl.hostname)
   redis.auth(redisUrl.auth.split(":")[1])
@@ -23,13 +22,11 @@ else if conf.get('REDIS_HOST')
   redis = require("redis").createClient conf.get('REDIS_PORT'), conf.get('REDIS_HOST')
   redis.auth conf.get('REDIS_PASSWORD')
 else
-  console.log 'AAA'
   redis = require("redis").createClient()
 redis.select conf.get('REDIS_DB')
 
 # Get Mongo configuration
 mongoUrl = if conf.get('NODE_ENV') is "development" then conf.get('MONGO_URL_LOCAL') else conf.get('MONGO_URL_REMOTE')
-console.log mongoUrl
 mongo = mongoskin.db "#{mongoUrl}?auto_reconnect", {safe: true}
 
 # The store creates models and syncs data
