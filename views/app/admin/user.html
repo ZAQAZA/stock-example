@@ -1,7 +1,33 @@
 <user:>
   <div class="user">
     <h3>User - <span class="text-info">{{_page.user.local.username}}</span></h3>
-    <div class="form-inline my-inline-input">
-      <label>Balance</label><input class="input-small" type="number" value="{priceHandler(_page.user.balance)}">
-    </div>
+    <app:balance>
+    <br>
+    <app:inventory>
   </div>
+
+<balance:>
+  <div class="form-inline my-inline-input">
+    <label>Balance</label><input class="input-small" type="number" value="{priceHandler(_page.user.balance)}">
+  </div>
+
+<inventory:>
+  <h4>Inventory</h4>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Stock</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each _page.inventory as :stock}
+        <tr>
+          <td>{{stocks[:stock.stock].name}}</td>
+          <td><input class="input-small" type="number" step="1" value={amountHandler(:stock.amount)}></td>
+        </tr>
+      {/}
+    </tbody>
+  </table>
+
+

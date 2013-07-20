@@ -3,22 +3,23 @@
     <h3>Stocks</h3>
     <app:addStock>
     <table class="table">
-        <thead>
+      <thead>
+        <tr>
+          <th>Stock</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each _page.stocks as :stock}
           <tr>
-            <th>Stock</th>
-            <th>Price</th>
+            <td>{{:stock.name}}</td>
+            <td><input class="input-small" type="number" step="0.01" value={:stock.price}></td>
+            <td><button class="btn btn-danger btn-small" x-bind="click: stocks.remove">Remove</button></td>
+            <td><button class="btn btn-success btn-small" x-bind="click: user.stocks.add">Add to inventory</button></td>
           </tr>
-        </thead>
-        <tbody>
-          {#each _page.stocks as :stock}
-            <tr>
-              <td>{{:stock.name}}</td>
-              <td><input class="input-small" type="number" step="0.01" value={:stock.price}></td>
-              <td><button class="btn btn-danger" x-bind="click: stocks.remove">Remove</button></td>
-            </tr>
-          {/}
-        </tbody>
-      </table>
+        {/}
+      </tbody>
+    </table>
   </div>
 
 <addStock:>
