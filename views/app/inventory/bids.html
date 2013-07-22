@@ -1,0 +1,55 @@
+
+<myBids:>
+  <h3>My Bids</h3>
+  <app:bidForm />
+  <app:bids />
+
+<bidForm:>
+  <form class="form-inline" x-bind="submit: bids.add">
+    <div class="my-inline-input">
+      <app:bidFormSelect />
+      <label>Amount</label><input class="input-small" type="number" step="1" value={amountHandler(_page.newBid.amount)} >
+      <label>Price</label><input class="input-small" type="number" step="0.01" value={priceHandler(_page.newBid.price)} >
+      <div class="btn-group">
+        <button type="submit" class="btn btn-small btn-success" x-bind="click: bids.buy">Buy</button>
+        <button type="submit" class="btn btn-small btn-danger" x-bind="click: bids.sell">Sell</button>
+      </div>
+    </div>
+  </form>
+
+<bidFormSelect: >
+  <select class="bid-stock-select" title='Select Stock' data-width="120px">
+    {#each _page.stocks as :stock}
+      <option>{{:stock.name}}</option>
+    {/}
+  </select>
+
+
+<bids:>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Stock</th>
+        <th>Requested Amount</th>
+        <th>Requested Price</th>
+        <th>Left to Execute</th>
+        <th>Remove</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each _page.user.bids as :bid}
+        <app:bid />
+      {/}
+    </tbody>
+  </table>
+
+<bid:>
+  <tr>
+    <td>{{:bid.type}}</td>
+    <td>{{stocks[:bid.stock].name}}</td>
+    <td>{{:bid.amount}}</td>
+    <td>{{:bid.price}}</td>
+    <td>{:bid.amountLeft}</td>
+    <td><button class="btn btn-danger btn-small" x-bind="click: bid.remove" disabled>Remove</button></td>
+  </tr>

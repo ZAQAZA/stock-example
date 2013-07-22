@@ -1,0 +1,19 @@
+<myStocks:>
+  <h3>My Stocks</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Stock</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each _page.user.inventory as :stock}
+        <tr>
+          <td>{{stocks[:stock.stock].name}}</td>
+          <td>{amountHandler(:stock.amount)}</td>
+        </tr>
+      {/}
+    </tbody>
+  </table>
+
