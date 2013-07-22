@@ -1,29 +1,31 @@
 <bids:>
   <div class="bids">
-    <h1>Bids</h1>
-    <ul>
-      {#each _bids as :bid}
-        <li><app:bid></li>
-      {/}
-    </ul>
+    <h3>All Bids</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Stock</th>
+          <th>Requested Amount</th>
+          <th>Requested Price</th>
+          <th>Left to Execute</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each _page.bids as :bid}
+          <app:bid />
+        {/}
+      </tbody>
+    </table>
   </div>
 
 <bid:>
-  <div class=bid>
-    <span class="{bidClass(:bid)}">
-      {{users[.user].auth.local.username}} wants to {{.type}} {{.origAmount}} <b>{{.stock}}</b> stocks for $<input value="{.price}"> each - (<input value="{.amount}"> remains to be execute).
-    </span>
-    <input class="sml" x-bind="click: removeBid" type="submit" value="x">
-  </div>
-
-<add:>
-  <h1>Place your bid</h1>
-  <form x-bind="submit: bid">
-    <ul>
-      <li>Type - <input value={_bidding.type}></li>
-      <li>Stock - <input value={_bidding.stock}></li>
-      <li>Amount - <input value={_bidding.amount}></li>
-      <li>Price - <input value={_bidding.price}></li>
-      <li><input type="submit" value="Bid"></li>
-      </ul>
-  </form>
+  <tr>
+    <td>{{:bid.type}}</td>
+    <td>{{stocks[:bid.stock].name}}</td>
+    <td><input class="input-small" type="number" step="1" value={:bid.amount}></td>
+    <td><input class="input-small" type="number" step="0.01" value={:bid.price}></td>
+    <td>{{:bid.amountLeft}}</td>
+    <td><button class="btn btn-danger btn-small" x-bind="click: bid.remove">Remove</button></td>
+  </tr>

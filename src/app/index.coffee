@@ -33,17 +33,17 @@ withUser = (model, callback) ->
     callback()
 
 withStocks = (model, callback) ->
-  stocksQ = model.query 'stocks', {}
-  stocksQ.subscribe (err) ->
+  stocksQuery = model.query 'stocks', {}
+  stocksQuery.subscribe (err) ->
     throw err if err
-    stocksQ.ref '_page.stocks'
+    stocksQuery.ref '_page.stocks'
     callback()
 
 withBids = (model, callback) ->
-  q = model.query 'bids', {}
-  q.subscribe (err) ->
+  bidsQuery = model.query 'bids', {}
+  bidsQuery.subscribe (err) ->
     throw err if err
-    q.ref '_page.user.bids'
+    bidsQuery.ref '_page.bids'
     callback()
 
 # ROUTES #
@@ -69,7 +69,7 @@ app.enter '/bids', (model) ->
 app.get '/admin', (page, model) ->
   withContexts model, ->
     page.render 'admin'
-  , [withUser, withStocks]
+  , [withUser, withStocks, withBids]
 
 app.get '/list', (page, model, params, next) ->
   # This value is set on the server in the `createUserId` middleware

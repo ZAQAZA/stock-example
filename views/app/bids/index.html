@@ -1,7 +1,7 @@
 <import: src="../layouts/portal" ns="">
 
 <Body:>
-  <app:layout title="Bids">
+  <app:layout title="My Bids">
     <app:bidForm />
     <app:bids />
   </app:layout>
@@ -53,5 +53,5 @@
     <td><input class="input-small" type="number" step="1" value={:bid.amount}></td>
     <td><input class="input-small" type="number" step="0.01" value={:bid.price}></td>
     <td>{{:bid.amountLeft}}</td>
-    <td><button class="btn btn-danger btn-small" x-bind="click: bid.remove">Remove</button></td>
+    <td><button class="btn btn-danger btn-small" x-bind="click: bid.remove" disabled>Remove</button></td>
   </tr>
