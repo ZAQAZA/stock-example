@@ -20,20 +20,17 @@ withUser = (model, callback) ->
   $username = $user.at "local.username"
   $balance = $user.at "balance"
   $inventory = $user.at "stocks"
-  $user.subscribe (err) ->
+  bidsQuery = model.query "bids",
+    creator: userId
+  model.subscribe $user, bidsQuery, (err) ->
     throw err if err
     $balance.setNull '', 1000.0
     model.ref "_page.user.local", $user.at "local"
     model.ref "_page.user.name", $username
     model.ref "_page.user.balance", $balance
     model.ref "_page.user.inventory", $inventory
-
-    bidsQ = model.query 'bids',
-      creator: userId
-    bidsQ.subscribe (err) ->
-      throw err if err
-      bidsQ.ref '_page.user.bids'
-      callback()
+    bidsQuery.ref "_page.user.bids"
+    callback()
 
 withStocks = (model, callback) ->
   stocksQ = model.query 'stocks', {}
