@@ -58,12 +58,12 @@ app.get '/stocks', (page, model) ->
     page.render 'stocks'
   , [withUser, withStocks]
 
-app.get '/bids', (page, model) ->
+app.get '/inventory', (page, model) ->
   withContexts model, ->
-    page.render 'bids'
+    page.render 'inventory'
   , [withUser, withStocks]
 
-app.enter '/bids', (model) ->
+app.enter '/inventory', (model) ->
   $('select').selectpicker()
 
 app.get '/admin', (page, model) ->
