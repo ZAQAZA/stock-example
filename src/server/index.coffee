@@ -26,7 +26,7 @@ else
 redis.select conf.get('REDIS_DB')
 
 # Get Mongo configuration
-mongoUrl = if conf.get('NODE_ENV') is "development" then conf.get('MONGO_URL_LOCAL') else conf.get('MONGO_URL_REMOTE')
+mongoUrl = if conf.get('NODE_ENV') is "production" then conf.get('MONGO_URL_REMOTE') else conf.get('MONGO_URL_LOCAL')
 mongo = mongoskin.db "#{mongoUrl}?auto_reconnect", {safe: true}
 
 # The store creates models and syncs data
@@ -83,7 +83,7 @@ options =
     successRedirect: '/'
     #usernameField: 'email'
   site:
-    domain: if conf.get('NODE_ENV') is "development" then conf.get('LOCAL_DOMAIN') else conf.get('REMOTE_DOMAIN')
+    domain: if conf.get('NODE_ENV') is "production" then conf.get('REMOTE_DOMAIN') else conf.get('LOCAL_DOMAIN')
     name: 'My Site'
     email: 'admin@mysite.com'
   smtp:

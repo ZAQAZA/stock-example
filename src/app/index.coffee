@@ -17,19 +17,32 @@ withUser = (model, callback) ->
     callback()
     return
   $user = model.at "auths.#{userId}"
+  $inventory = $user.at 'stocks'
   $user.subscribe (err) ->
     throw err if err
     $user.setNull 'balance', 1000.0
     model.ref "_page.user", $user
-    $user.ref "_page.inventory", "stocks"
-    $user.ref "_page.bids", "bids"
-    callback()
+    model.ref "_page.inventory", $inventory
+
+    bidsQ = model.query 'bids',
+      creator: userId
+    bidsQ.subscribe (err) ->
+      throw err if err
+      bidsQ.ref '_page.xxx.bids'
+      callback()
 
 withStocks = (model, callback) ->
-  stocksQuery = model.query 'stocks', {}
-  model.subscribe 'stocks', (err) ->
+  stocksQ = model.query 'stocks', {}
+  stocksQ.subscribe (err) ->
     throw err if err
-    stocksQuery.ref '_page.stocks'
+    stocksQ.ref '_page.stocks'
+    callback()
+
+withBids = (model, callback) ->
+  q = model.query 'bids', {}
+  q.subscribe (err) ->
+    throw err if err
+    q.ref '_page.user.bids'
     callback()
 
 # ROUTES #
@@ -78,8 +91,15 @@ app.get '/list', (page, model, params, next) ->
     user.increment 'visits'
     page.render 'list'
 
-myAlert = (obj) ->
-  alert JSON.stringify(obj, null, 4)
+myAlert = (log, obj) ->
+  cache = []
+  log JSON.stringify obj, (key, value) ->
+    if (typeof value is 'object' and value isnt null)
+      return if (cache.indexOf(value) isnt -1)
+      cache.push(value)
+    return value
+  , 4
+  cache = null
 
 # CONTROLLER FUNCTIONS #
 
@@ -122,13 +142,12 @@ app.fn 'bids.add', (e) ->
   newItem = $model.del '_page.newBid'
   return unless newItem
   find_id_by_name = (name) ->
-    alert name
-    q = $model.query 'stocks',
-      price: 12
-    alert q.get().length
-    q.get()[0].id
-  newItem.stock = find_id_by_name $('.bid-stock-select').val()
-  myAlert newItem
+    for stock in $model.get '_page.stocks'
+      return stock.id if stock.name is name
+  newItem['stock'] = find_id_by_name $('.bid-stock-select').val()
+  newItem['amountLeft'] = newItem.amount
+  newItem['creator'] = $model.get '_page.user.id'
+  $model.add "bids", newItem
 
 app.fn 'bids.buy', (e) ->
   @model.set '_page.newBid.type', 'buy'
