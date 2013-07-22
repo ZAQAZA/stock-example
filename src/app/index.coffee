@@ -17,18 +17,22 @@ withUser = (model, callback) ->
     callback()
     return
   $user = model.at "auths.#{userId}"
-  $inventory = $user.at 'stocks'
+  $username = $user.at "local.username"
+  $balance = $user.at "balance"
+  $inventory = $user.at "stocks"
   $user.subscribe (err) ->
     throw err if err
-    $user.setNull 'balance', 1000.0
-    model.ref "_page.user", $user
-    model.ref "_page.inventory", $inventory
+    $balance.setNull '', 1000.0
+    model.ref "_page.user.local", $user.at "local"
+    model.ref "_page.user.name", $username
+    model.ref "_page.user.balance", $balance
+    model.ref "_page.user.inventory", $inventory
 
     bidsQ = model.query 'bids',
       creator: userId
     bidsQ.subscribe (err) ->
       throw err if err
-      bidsQ.ref '_page.xxx.bids'
+      bidsQ.ref '_page.user.bids'
       callback()
 
 withStocks = (model, callback) ->
@@ -128,7 +132,7 @@ app.fn 'stocks.remove', (e) ->
 
 app.fn 'user.stocks.add', (e, el) ->
   id = e.get ':stock.id'
-  userId = @model.get '_page.user.id'
+  userId = @model.get '_session.userId'
   inventory = @model.get "auths.#{userId}.stocks"
   for item, i in inventory || []
     toRemove = i if item.stock is id
@@ -146,7 +150,7 @@ app.fn 'bids.add', (e) ->
       return stock.id if stock.name is name
   newItem['stock'] = find_id_by_name $('.bid-stock-select').val()
   newItem['amountLeft'] = newItem.amount
-  newItem['creator'] = $model.get '_page.user.id'
+  newItem['creator'] = $model.get '_session.userId'
   $model.add "bids", newItem
 
 app.fn 'bids.buy', (e) ->
@@ -180,3 +184,4 @@ app.view.fn 'changeHandler', (change) ->
 
 # READY FUNCTION #
 
+app.ready (model) ->

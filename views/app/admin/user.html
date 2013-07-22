@@ -1,6 +1,6 @@
 <user:>
   <div class="user">
-    <h3>User - <span class="text-info">{{_page.user.local.username}}</span></h3>
+    <h3>User - <span class="text-info">{{_page.user.name}}</span></h3>
     <app:balance>
     <br>
     <app:inventory>
@@ -21,7 +21,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each _page.inventory as :stock}
+      {#each _page.user.inventory as :stock}
         <tr>
           <td>{{stocks[:stock.stock].name}}</td>
           <td><input class="input-small" type="number" step="1" value={amountHandler(:stock.amount)}></td>
