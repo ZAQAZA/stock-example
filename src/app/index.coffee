@@ -150,6 +150,10 @@ app.fn 'bids.add', (e) ->
   newItem['creator'] = $model.get '_session.userId'
   $model.add "bids", newItem
 
+app.fn 'bid.remove', (e) ->
+  id = e.get ':bid.id'
+  @model.del 'bids.' + id
+
 app.fn 'bids.buy', (e) ->
   @model.set '_page.newBid.type', 'buy'
 

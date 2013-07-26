@@ -9,6 +9,7 @@ serverError = require('./serverError')
 mongoskin = require('mongoskin')
 publicDir = require('path').join __dirname + '/../../public'
 conf = require('nconf')
+matcher = require '../app/matcher'
 
 expressApp = module.exports = express()
 
@@ -36,6 +37,8 @@ store = derby.createStore
 
 store.on 'bundle', (browserify) ->
   browserify.transform coffeeify
+
+matcher.subscribe store
 
 ###
 (1)
