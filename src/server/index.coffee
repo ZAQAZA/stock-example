@@ -38,7 +38,7 @@ store = derby.createStore
 store.on 'bundle', (browserify) ->
   browserify.transform coffeeify
 
-matcher.subscribe store
+  #matcher.subscribe store
 
 ###
 (1)

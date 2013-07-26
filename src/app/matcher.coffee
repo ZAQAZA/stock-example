@@ -1,6 +1,9 @@
 
 module.exports = 
   subscribe: (store) ->
+    store.hook 'change', 'collection.*.foo', (docId, value, op, session, backend) ->
+      model = store.createModel()
+    #logic
     model = store.createModel()
     model.on 'change', '**', (cap, value, prev, passed) ->
       console.log 'ofri'
