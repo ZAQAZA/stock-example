@@ -5,6 +5,7 @@
       <thead>
         <tr>
           <th>Type</th>
+          <th>User</th>
           <th>Stock</th>
           <th>Requested Amount</th>
           <th>Requested Price</th>
@@ -23,6 +24,7 @@
 <bid:>
   <tr>
     <td>{{:bid.type}}</td>
+    <td>{{auths[:bid.creator].local.username}}</td>
     <td>{{stocks[:bid.stock].name}}</td>
     <td><input class="input-small" type="number" step="1" value={:bid.amount}></td>
     <td><input class="input-small" type="number" step="0.01" value={:bid.price}></td>

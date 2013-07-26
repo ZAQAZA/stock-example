@@ -10,6 +10,12 @@ withContexts = (model, callback, contexts) ->
   contexts[0] model, ->
     withContexts model, callback, contexts[1..contexts.length-1]
 
+withAllUsers = (model, callback) ->
+  $users = model.at "auths"
+  $users.subscribe (err) ->
+    throw err if err
+    callback()
+
 withUser = (model, callback) ->
   model.set '_page.registered', true
   userId = model.get "_session.userId"
@@ -69,7 +75,7 @@ app.enter '/inventory', (model) ->
 app.get '/admin', (page, model) ->
   withContexts model, ->
     page.render 'admin'
-  , [withUser, withStocks, withBids]
+  , [withAllUsers, withUser, withStocks, withBids]
 
 app.get '/list', (page, model, params, next) ->
   # This value is set on the server in the `createUserId` middleware

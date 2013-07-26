@@ -11,9 +11,11 @@
         <div class="nav-collapse">
           <ul class="nav">
             <!-- Other templates are included like HTML elements -->
-            <app:navLink title="Stocks" href="/stocks">
-            <app:navLink title="Inventory" href="/inventory">
-            <app:navLink title="Admin" href="/admin">
+            {#if _page.user.local}
+              <app:navLink title="Stocks" href="/stocks">
+              <app:navLink title="Inventory" href="/inventory">
+              <app:navLink title="Admin" href="/admin">
+            {/}
           </ul>
         </div>
       </div>
