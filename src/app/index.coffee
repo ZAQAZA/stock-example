@@ -11,9 +11,14 @@ withContexts = (model, callback, contexts) ->
     withContexts model, callback, contexts[1..contexts.length-1]
 
 withAllUsers = (model, callback) ->
-  $users = model.at "auths"
-  $users.subscribe (err) ->
+  inventoryQuery = model.query 'holdings', {}
+  bidsQuery = model.query 'bids', {}
+  usersQuery = model.query 'auths', {}
+  model.subscribe usersQuery, bidsQuery, inventoryQuery, (err) ->
     throw err if err
+    usersQuery.ref '_page.users'
+    bidsQuery.ref '_page.bids'
+    inventoryQuery.ref '_page.inventory'
     callback()
 
 withUser = (model, callback) ->
@@ -25,16 +30,17 @@ withUser = (model, callback) ->
   $user = model.at "auths.#{userId}"
   $username = $user.at "local.username"
   $balance = $user.at "balance"
-  $inventory = $user.at "stocks"
+  inventoryQuery = model.query "holdings",
+    user: userId
   bidsQuery = model.query "bids",
     creator: userId
-  model.subscribe $user, bidsQuery, (err) ->
+  model.subscribe $user, bidsQuery, inventoryQuery, (err) ->
     throw err if err
     $balance.setNull '', 1000.0
     model.ref "_page.user.local", $user.at "local"
     model.ref "_page.user.name", $username
     model.ref "_page.user.balance", $balance
-    model.ref "_page.user.inventory", $inventory
+    inventoryQuery.ref "_page.user.inventory"
     bidsQuery.ref "_page.user.bids"
     callback()
 
@@ -43,13 +49,6 @@ withStocks = (model, callback) ->
   stocksQuery.subscribe (err) ->
     throw err if err
     stocksQuery.ref '_page.stocks'
-    callback()
-
-withBids = (model, callback) ->
-  bidsQuery = model.query 'bids', {}
-  bidsQuery.subscribe (err) ->
-    throw err if err
-    bidsQuery.ref '_page.bids'
     callback()
 
 # ROUTES #
@@ -75,7 +74,7 @@ app.enter '/inventory', (model) ->
 app.get '/admin', (page, model) ->
   withContexts model, ->
     page.render 'admin'
-  , [withAllUsers, withUser, withStocks, withBids]
+  , [withAllUsers, withUser, withStocks ]
 
 app.get '/list', (page, model, params, next) ->
   # This value is set on the server in the `createUserId` middleware
@@ -135,14 +134,26 @@ app.fn 'stocks.remove', (e) ->
 
 app.fn 'user.stocks.add', (e, el) ->
   id = e.get ':stock.id'
-  userId = @model.get '_session.userId'
-  inventory = @model.get "auths.#{userId}.stocks"
-  for item, i in inventory || []
-    toRemove = i if item.stock is id
-  removed = @model.remove "auths.#{userId}.stocks", toRemove if toRemove?
-  @model.push "auths.#{userId}.stocks",
+  model = @model
+  userId = model.get '_session.userId'
+  inventory = model.get "_page.user.inventory"
+  holdingQuery = model.query 'holdings',
+    user: userId
     stock: id
-    amount: if removed then removed[0].amount + 1 else 1
+  model.subscribe holdingQuery, (err) ->
+    throw err if err
+    holdings = holdingQuery.get()
+    if holdings.length
+      model.increment "holdings.#{holdings[0].id}.amount"
+    else
+      model.add "holdings",
+        user: userId
+        stock: id
+        amount: 1
+
+app.fn 'user.stocks.remove', (e) ->
+  id = e.get ':stock.id'
+  @model.del 'holdings.' + id
 
 app.fn 'bids.add', (e) ->
   $model = @model

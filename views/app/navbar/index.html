@@ -9,14 +9,17 @@
         </button>
         <a class="brand" href="/">Stock.JS</a>
         <div class="nav-collapse">
-          <ul class="nav">
-            <!-- Other templates are included like HTML elements -->
-            {#if _page.user.local}
+          {#if _page.user.local}
+            <ul class="nav pull-right">
+              <li><a><app:balance></a></li>
+            </ul>
+            <ul class="nav">
+              <!-- Other templates are included like HTML elements -->
               <app:navLink title="Stocks" href="/stocks">
               <app:navLink title="Inventory" href="/inventory">
               <app:navLink title="Admin" href="/admin">
-            {/}
-          </ul>
+            </ul>
+          {/}
         </div>
       </div>
     </div>
@@ -26,3 +29,7 @@
   <li class="{{#if equal($url, @href)}}active{{/}}">
     <a href="{{@href}}">{{@title}}</a>
   </li>
+
+<balance:>
+  Hello <span class="text-info-inverse"><strong>{{_page.user.name}}</strong></span>
+  , your balance is: <span class="text-success-inverse"><strong>${_page.user.balance}</strong></span>

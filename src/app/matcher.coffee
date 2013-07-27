@@ -1,24 +1,19 @@
 
-module.exports = 
+module.exports =
   subscribe: (store) ->
-    store.hook 'change', 'collection.*.foo', (docId, value, op, session, backend) ->
+    store.hook 'create', 'bids', (bidId, newBid, op, session, backend) ->
       model = store.createModel()
-    #logic
-    model = store.createModel()
-    model.on 'change', '**', (cap, value, prev, passed) ->
-      console.log 'ofri'
-      done()
-      ###
-      store.get 'bids', (err, bids) ->
-        matcher store, bids, newBid
-        done()
+      model.fetch 'bids', (err) ->
+        throw err if err
+        bids = model.get 'bids'
+        matcher model, bids, newBid
 
-matcher = (store, bids, bid) ->
+matcher = (model, bids, bid) ->
   matchedBid = findMatch bids, bid
   unless matchedBid
     console.log 'no match found'
     return
-  execute store, bid, matchedBid
+  execute model, bid, matchedBid
 
 findMatch = (bids, bid) ->
   match = bids[id] for id of bids when doesMatch(bids[id], bid)
@@ -30,7 +25,7 @@ findMatch = (bids, bid) ->
 doesMatch = (bid1, bid2) ->
   { sell, buy } = sort bid1, bid2
   ( sell && buy ) &&
-    (bid1.amount > 0 && bid2.amount > 0) &&
+    (bid1.amountLeft > 0 && bid2.amountLeft > 0) &&
     (bid1.stock == bid2.stock) &&
     (buy.price >= sell.price)
 
@@ -42,36 +37,36 @@ sort = (bid1, bid2) ->
   sell: sell
   buy: buy
 
-execute = (store, bid1, bid2) ->
+# think about a db transaction.. this entire function should execute as atomic operation
+execute = (model, bid1, bid2) ->
   {sell, buy} = sort bid1, bid2
-  amount = min sell.amount, buy.amount
-  sell.amount -= amount
-  buy.amount -= amount
+  amount = min sell.amountLeft, buy.amountLeft
+  sell.amountLeft -= amount
+  buy.amountLeft -= amount
   sum = amount * min sell.price, buy.price
   stock = sell.stock
-  # think about a db transaction.. the following operations should execute together
   if amount > 0
-    updateBid store, b for b in [sell, buy]
-    updateBalance store, sell.user, sum
-    updateBalance store, buy.user, -sum
-    #updateHolding store, sell.user, stock, -amount
-    #updateHolding store, buy.user, stock, amount
+    (updateBid model, b) for b in [sell, buy]
+    #updateBalance model, sell.user, sum
+    #updateBalance model, buy.user, -sum
+    #updateHolding model, sell.user, stock, -amount
+    #updateHolding model, buy.user, stock, amount
 
-updateBid = (store, bid) ->
-  store.set 'bids.'+bid.id, bid
+updateBid = (model, bid) ->
+  model.set 'bids.'+bid.id, bid
 
-updateBalance = (store, userID, delta) ->
+updateBalance = (model, userID, delta) ->
   balancePath = "users.#{userID}.balance"
-  store.get balancePath, (err, b) ->
-    store.set balancePath, b+delta
+  model.get balancePath, (err, b) ->
+    model.set balancePath, b+delta
 
-updateHolding = (store, userID, stock, delta) ->
+updateHolding = (model, userID, stock, delta) ->
   update = (s) ->
     s.amount += delta
   holdingPath = "users.#{userID}.stockHoldings"
-  store.get holdingPath, (err, h) ->
+  model.get holdingPath, (err, h) ->
     update s for s in h when s.stock == stock
-    store.set holdingPath, h
+    model.set holdingPath, h
 
 min = (a,b) ->
   if a<=b then a else b

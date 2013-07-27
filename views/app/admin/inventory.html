@@ -1,0 +1,22 @@
+<inventory:>
+  <h3>Inventory</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Stock</th>
+        <th>Amount</th>
+        <th>Remove</th>
+      </tr>
+    </thead>
+      {#each _page.inventory as :stock}
+        <tr>
+          <td>{{auths[:stock.user].local.username}}</td>
+          <td>{{stocks[:stock.stock].name}}</td>
+          <td><input class="input-small" type="number" step="1" value={amountHandler(:stock.amount)}></td>
+          <td><button class="btn btn-danger btn-small" x-bind="click: user.stocks.remove">Remove</button></td>
+        </tr>
+      {/}
+    <tbody>
+    </tbody>
+  </table>
