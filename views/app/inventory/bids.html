@@ -31,8 +31,8 @@
       <tr>
         <th>Type</th>
         <th>Stock</th>
-        <th>Requested Amount</th>
         <th>Requested Price</th>
+        <th>Requested Amount</th>
         <th>Left to Execute</th>
         <th>Remove</th>
       </tr>
@@ -48,8 +48,8 @@
   <tr>
     <td>{{:bid.type}}</td>
     <td>{{stocks[:bid.stock].name}}</td>
-    <td>{{:bid.amount}}</td>
     <td>{{:bid.price}}</td>
+    <td>{{:bid.amount}}</td>
     <td>{:bid.amountLeft}</td>
     <td><button class="btn btn-danger btn-small" x-bind="click: bid.remove" disabled>Remove</button></td>
   </tr>

@@ -37,7 +37,8 @@ sort = (bid1, bid2) ->
   sell: sell
   buy: buy
 
-# think about a db transaction.. this entire function should execute as atomic operation
+# think about a db transaction.. this entire function
+# should execute as atomic operation
 execute = (model, bid1, bid2) ->
   {sell, buy} = sort bid1, bid2
   amount = min sell.amountLeft, buy.amountLeft
@@ -47,27 +48,38 @@ execute = (model, bid1, bid2) ->
   stock = sell.stock
   if amount > 0
     (updateBid model, b) for b in [sell, buy]
-    #updateBalance model, sell.user, sum
-    #updateBalance model, buy.user, -sum
-    #updateHolding model, sell.user, stock, -amount
-    #updateHolding model, buy.user, stock, amount
+    updateBalance model, sell.creator, sum
+    updateBalance model, buy.creator, -sum
+    model.subscribe 'holdings', (err) ->
+      throw err if err
+      updateHolding model, sell.creator, stock, -amount
+      updateHolding model, buy.creator, stock, amount
 
 updateBid = (model, bid) ->
   model.set 'bids.'+bid.id, bid
 
 updateBalance = (model, userID, delta) ->
-  balancePath = "users.#{userID}.balance"
-  model.get balancePath, (err, b) ->
-    model.set balancePath, b+delta
+  $user = model.at "auths.#{userID}"
+  $user.subscribe (err) ->
+    throw err if err
+    $user.increment 'balance', delta
 
 updateHolding = (model, userID, stock, delta) ->
-  update = (s) ->
-    s.amount += delta
-  holdingPath = "users.#{userID}.stockHoldings"
-  model.get holdingPath, (err, h) ->
-    update s for s in h when s.stock == stock
-    model.set holdingPath, h
+  holdingQuery = model.query 'holdings',
+    user: userID
+    stock: stock
+  model.subscribe holdingQuery, (err) ->
+    throw err if err
+    holdings = holdingQuery.get()
+    if holdings.length
+      id = holdings[0].id
+      model.increment "holdings.#{id}.amount", delta
+    else
+      throw new Error('negative amount and no holding found!') if delta < 0
+      model.add 'holdings',
+        user: userID
+        stock: stock
+        amount: delta
 
 min = (a,b) ->
   if a<=b then a else b
-  ###
