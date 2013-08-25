@@ -1,15 +1,15 @@
-express = require('express')
-coffeeify = require('coffeeify')
-derby = require('derby')
-racerBrowserChannel = require('racer-browserchannel')
-LiveDbMongo = require('livedb-mongo').LiveDbMongo
+express = require 'express'
+coffeeify = require 'coffeeify'
+derby = require 'derby'
+racerBrowserChannel = require 'racer-browserchannel'
+liveDbMongo = require 'livedb-mongo'
 MongoStore = require('connect-mongo')(express)
-app = require('../app')
-serverError = require('./serverError')
-mongoskin = require('mongoskin')
+app = require '../app'
+serverError = require './serverError'
+mongoskin = require 'mongoskin'
 publicDir = require('path').join __dirname + '/../../public'
-conf = require('nconf')
-hooker = require('./hook')
+conf = require 'nconf'
+hooker = require './hook'
 matcher = require '../app/matcher'
 
 expressApp = module.exports = express()
@@ -29,11 +29,11 @@ redis.select conf.get('REDIS_DB')
 
 # Get Mongo configuration
 mongoUrl = if conf.get('NODE_ENV') is "production" then conf.get('MONGO_URL_REMOTE') else conf.get('MONGO_URL_LOCAL')
-mongo = mongoskin.db "#{mongoUrl}?auto_reconnect", {safe: true}
+mongo = liveDbMongo(mongoUrl + '?auto_reconnect', safe: true)
 
 # The store creates models and syncs data
 store = derby.createStore
-  db: new LiveDbMongo(mongo)
+  db: mongo
   redis: redis
 
 store.on 'bundle', (browserify) ->

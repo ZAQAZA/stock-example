@@ -1,6 +1,6 @@
 {
 
-  "MONGO_URL_LOCAL": "mongodb://localhost:27017/stock05_beta",
+  "MONGO_URL_LOCAL": "mongodb://localhost:27017/zaqaza-stock",
   "MONGO_URL_REMOTE": "mongodb://ofridagan:11MilkDagan@linus.mongohq.com:10019/app16306420",
   "LOCAL_DOMAIN": "http://localhost:3001",
   "REMOTE_DOMAIN": "http://mysterious-coast-6929.herokuapp.com",

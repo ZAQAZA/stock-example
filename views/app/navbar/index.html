@@ -1,29 +1,27 @@
 <navbar:>
-  <div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-      <div class="container">
-        <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="brand" href="/">Stock.JS</a>
-        <div class="nav-collapse">
-          {#if _page.user.local}
-            <ul class="nav pull-right">
-              <li><a><app:balance></a></li>
-            </ul>
-            <ul class="nav">
-              <!-- Other templates are included like HTML elements -->
-              <app:navLink title="Stocks" href="/stocks">
-              <app:navLink title="Inventory" href="/inventory">
-              <app:navLink title="Admin" href="/admin">
-            </ul>
-          {/}
-        </div>
-      </div>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">Stock.JS</a>
     </div>
-  </div>
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+      {#if _page.user.local}
+        <app:balance>
+        <ul class="nav navbar-nav">
+          <!-- Other templates are included like HTML elements -->
+          <app:navLink title="Home" href="/">
+          <app:navLink title="Stocks" href="/stocks">
+          <app:navLink title="Inventory" href="/inventory">
+          <app:navLink title="Admin" href="/admin">
+        </ul>
+      {/}
+    </div>
+  </nav>
 
 <navLink:>
   <li class="{{#if equal($url, @href)}}active{{/}}">
@@ -31,5 +29,5 @@
   </li>
 
 <balance:>
-  Hello <span class="text-info-inverse"><strong>{{_page.user.name}}</strong></span>
-  , your balance is: <span class="text-success-inverse"><strong>${_page.user.balance}</strong></span>
+  <p class="navbar-text navbar-right">Hello <strong class="text-primary">{{_page.user.name}}</strong>
+  , your balance is: <strong class="text-success">${_page.user.balance}</strong></p>

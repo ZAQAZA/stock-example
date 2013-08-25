@@ -76,27 +76,6 @@ app.get '/admin', (page, model) ->
     page.render 'admin'
   , [withAllUsers, withUser, withStocks ]
 
-app.get '/list', (page, model, params, next) ->
-  # This value is set on the server in the `createUserId` middleware
-  userId = model.get '_session.userId'
-
-  # Create a scoped model, which sets the base path for all model methods
-  user = model.at 'users.' + userId
-
-  # Create a mongo query that gets the current user's items
-  itemsQuery = model.query 'items', {userId}
-
-  # Get the inital data and subscribe to any updates
-  model.subscribe user, itemsQuery, (err) ->
-    return next err if err
-
-    # Create references that can be used in templates or controller methods
-    model.ref '_page.user', user
-    itemsQuery.ref '_page.items'
-
-    user.increment 'visits'
-    page.render 'list'
-
 myAlert = (log, obj) ->
   cache = []
   log JSON.stringify obj, (key, value) ->
@@ -109,16 +88,6 @@ myAlert = (log, obj) ->
 
 # CONTROLLER FUNCTIONS #
 
-app.fn 'list.add', (e, el) ->
-  newItem = @model.del '_page.newItem'
-  return unless newItem
-  newItem.userId = @model.get '_session.userId'
-  @model.add 'items', newItem
-
-app.fn 'list.remove', (e) ->
-  id = e.get ':item.id'
-  @model.del 'items.' + id
-
 app.fn 'login.toggle', (e) ->
   @model.set '_page.registered', !(@model.get '_page.registered')
 
@@ -129,8 +98,8 @@ app.fn 'stocks.add', (e, el) ->
   @model.add 'stocks', newItem
 
 app.fn 'stocks.remove', (e) ->
-  id = e.get ':stock.id'
-  @model.del 'stocks.' + id
+  stock = e.get ':stock'
+  @model.del 'stocks.' + stock.id
 
 app.fn 'user.stocks.add', (e, el) ->
   id = e.get ':stock.id'
@@ -152,8 +121,8 @@ app.fn 'user.stocks.add', (e, el) ->
         amount: 1
 
 app.fn 'user.stocks.remove', (e) ->
-  id = e.get ':stock.id'
-  @model.del 'holdings.' + id
+  holding = e.get ':stock'
+  @model.del 'holdings.' + holding.id
 
 app.fn 'bids.add', (e) ->
   $model = @model
@@ -168,8 +137,8 @@ app.fn 'bids.add', (e) ->
   $model.add "bids", newItem
 
 app.fn 'bid.remove', (e) ->
-  id = e.get ':bid.id'
-  @model.del 'bids.' + id
+  bid = e.get ':bid'
+  @model.del 'bids.' + bid.id
 
 app.fn 'bids.buy', (e) ->
   @model.set '_page.newBid.type', 'buy'
