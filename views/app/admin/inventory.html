@@ -9,6 +9,7 @@
         <th>Remove</th>
       </tr>
     </thead>
+    <tbody>
       {#each _page.inventory as :stock}
         <tr>
           <td>{{auths[:stock.user].local.username}}</td>
@@ -17,6 +18,5 @@
           <td><button class="btn btn-danger btn-small" x-bind="click: user.stocks.remove">Remove</button></td>
         </tr>
       {/}
-    <tbody>
     </tbody>
   </table>

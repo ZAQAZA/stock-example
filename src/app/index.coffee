@@ -10,46 +10,59 @@ withContexts = (model, callback, contexts) ->
   contexts[0] model, ->
     withContexts model, callback, contexts[1..contexts.length-1]
 
-withAllUsers = (model, callback) ->
-  inventoryQuery = model.query 'holdings', {}
-  bidsQuery = model.query 'bids', {}
-  usersQuery = model.query 'auths', {}
-  model.subscribe usersQuery, bidsQuery, inventoryQuery, (err) ->
-    throw err if err
-    usersQuery.ref '_page.users'
-    bidsQuery.ref '_page.bids'
-    inventoryQuery.ref '_page.inventory'
-    callback()
+loggedInUser = (model) ->
+  model.get "_session.userId"
 
 withUser = (model, callback) ->
   model.set '_page.registered', true
-  userId = model.get "_session.userId"
+  userId = loggedInUser model
   unless userId
     callback()
     return
   $user = model.at "auths.#{userId}"
   $username = $user.at "local.username"
   $balance = $user.at "balance"
-  inventoryQuery = model.query "holdings",
-    user: userId
-  bidsQuery = model.query "bids",
-    creator: userId
-  model.subscribe $user, bidsQuery, inventoryQuery, (err) ->
+  model.subscribe $user, (err) ->
     throw err if err
     $balance.setNull '', 1000.0
     model.ref "_page.user.local", $user.at "local"
     model.ref "_page.user.name", $username
     model.ref "_page.user.balance", $balance
-    inventoryQuery.ref "_page.user.inventory"
-    bidsQuery.ref "_page.user.bids"
     callback()
 
-withStocks = (model, callback) ->
-  stocksQuery = model.query 'stocks', {}
-  stocksQuery.subscribe (err) ->
-    throw err if err
-    stocksQuery.ref '_page.stocks'
-    callback()
+withUserCollection = (collection, alias) ->
+  (model, callback) ->
+    query = model.query collection,
+      user: loggedInUser model
+    model.subscribe query, (err) ->
+      throw err if err
+      query.ref "_page.user.#{alias || collection}"
+      callback()
+
+withAllCollection = (collection, alias) ->
+  (model, callback) ->
+    items = model.filter collection, 'all'
+    model.subscribe collection, (err) ->
+      throw err if err
+      items.ref "_page.#{alias || collection}"
+      callback()
+
+withUserHoldings = withUserCollection 'holdings', 'inventory'
+withUserBids = withUserCollection 'bids'
+withAllUserCollections = [withUser, withUserHoldings, withUserBids]
+
+withAllStocks = withAllCollection 'stocks'
+withAllHoldings = withAllCollection 'holdings', 'inventory'
+withAllBids = withAllCollection 'bids'
+withAllUsers = withAllCollection 'auths', 'users'
+
+withAll = [withUser, withAllStocks, withAllHoldings, withAllBids, withAllUsers]
+
+# REACTIVE FUNCTIONS #
+
+app.on 'model', (model) ->
+  model.fn 'all', ->
+    true
 
 # ROUTES #
 
@@ -61,12 +74,12 @@ app.get '/', (page, model) ->
 app.get '/stocks', (page, model) ->
   withContexts model, ->
     page.render 'stocks'
-  , [withUser, withStocks]
+  , [withUser, withAllStocks]
 
 app.get '/inventory', (page, model) ->
   withContexts model, ->
     page.render 'inventory'
-  , [withUser, withStocks]
+  , withAllUserCollections.concat withAllStocks
 
 app.enter '/inventory', (model) ->
   $('select').selectpicker()
@@ -74,7 +87,7 @@ app.enter '/inventory', (model) ->
 app.get '/admin', (page, model) ->
   withContexts model, ->
     page.render 'admin'
-  , [withAllUsers, withUser, withStocks ]
+  , withAll
 
 myAlert = (log, obj) ->
   cache = []
@@ -133,7 +146,7 @@ app.fn 'bids.add', (e) ->
       return stock.id if stock.name is name
   newItem['stock'] = find_id_by_name $('.bid-stock-select').val()
   newItem['amountLeft'] = newItem.amount
-  newItem['creator'] = $model.get '_session.userId'
+  newItem['user'] = $model.get '_session.userId'
   $model.add "bids", newItem
 
 app.fn 'bid.remove', (e) ->
