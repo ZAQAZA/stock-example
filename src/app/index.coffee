@@ -34,7 +34,7 @@ withUserCollection = (collection, alias) ->
   (model, callback) ->
     query = model.query collection,
       user: loggedInUser model
-    model.subscribe query, (err) ->
+    query.subscribe (err) ->
       throw err if err
       query.ref "_page.user.#{alias || collection}"
       callback()

@@ -3,10 +3,20 @@ module.exports =
   subscribe: (store) ->
     store.hook 'create', 'bids', (bidId, newBid, op, session, backend) ->
       model = store.createModel()
-      model.fetch 'bids', (err) ->
+      fetchSortedOppositeBids model, newBid, (bids, err) ->
         throw err if err
-        bids = model.get 'bids'
-        matcher model, bids, newBid
+        model.subscribe 'bids', (err) ->
+          throw err if err
+          matcher model, bids, newBid
+
+oppisiteType = (bid) ->
+  if bid.type is 'buy' then 'sell' else 'buy'
+
+fetchSortedOppositeBids = (model, bid, callback) ->
+  bidsQuery = model.query 'bids',
+    type: oppisiteType bid
+  bidsQuery.fetch (err) ->
+    callback bidsQuery.get(), err
 
 matcher = (model, bids, bid) ->
   matchedBid = findMatch bids, bid
@@ -48,15 +58,15 @@ execute = (model, bid1, bid2) ->
   stock = sell.stock
   if amount > 0
     (updateBid model, b) for b in [sell, buy]
-    updateBalance model, sell.creator, sum
-    updateBalance model, buy.creator, -sum
+    updateBalance model, sell.user, sum
+    updateBalance model, buy.user, -sum
     model.subscribe 'holdings', (err) ->
       throw err if err
-      updateHolding model, sell.creator, stock, -amount
-      updateHolding model, buy.creator, stock, amount
+      updateHolding model, sell.user, stock, -amount
+      updateHolding model, buy.user, stock, amount
 
 updateBid = (model, bid) ->
-  model.set 'bids.'+bid.id, bid
+  model.set "bids.#{bid.id}.amountLeft", bid.amountLeft
 
 updateBalance = (model, userID, delta) ->
   $user = model.at "auths.#{userID}"
@@ -68,7 +78,7 @@ updateHolding = (model, userID, stock, delta) ->
   holdingQuery = model.query 'holdings',
     user: userID
     stock: stock
-  model.subscribe holdingQuery, (err) ->
+  holdingQuery.fetch (err) ->
     throw err if err
     holdings = holdingQuery.get()
     if holdings.length
