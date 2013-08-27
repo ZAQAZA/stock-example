@@ -41,11 +41,22 @@ withUserCollection = (collection, alias) ->
 
 withAllCollection = (collection, alias) ->
   (model, callback) ->
+    itemsQuery = model.query collection, {}
+    itemsQuery.subscribe (err) ->
+      throw err if err
+      itemsQuery.ref "_page.#{alias || collection}"
+      callback()
+
+### It used to be filters, but it had problems now it's queries
+# maybe we'll try filters again when it becomes more stable.
+withAllCollection = (collection, alias) ->
+  (model, callback) ->
     items = model.filter collection, 'all'
     model.subscribe collection, (err) ->
       throw err if err
       items.ref "_page.#{alias || collection}"
       callback()
+###
 
 withUserHoldings = withUserCollection 'holdings', 'inventory'
 withUserBids = withUserCollection 'bids'
