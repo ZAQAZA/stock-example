@@ -4,6 +4,7 @@ module.exports =
     store.hook 'create', 'bids', (bidId, newBid, op, session, backend) ->
       model = store.createModel()
       fetchSortedOppositeBids model, newBid, (bids, err) ->
+        console.log bids
         throw err if err
         model.subscribe 'bids', (err) ->
           throw err if err
@@ -12,9 +13,16 @@ module.exports =
 oppisiteType = (bid) ->
   if bid.type is 'buy' then 'sell' else 'buy'
 
+order = (type) ->
+  if type is 'buy' then -1 else 1
+
 fetchSortedOppositeBids = (model, bid, callback) ->
   bidsQuery = model.query 'bids',
-    type: oppisiteType bid
+    $query:
+      type: oppisiteType bid
+      stock: bid.stock
+    $order_by:
+      price: order(oppisiteType bid)
   bidsQuery.fetch (err) ->
     callback bidsQuery.get(), err
 

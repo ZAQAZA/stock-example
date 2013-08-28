@@ -17,13 +17,10 @@
     </div>
   </form>
 
-<bidFormSelect: >
-  <select class="bid-stock-select" title='Select Stock' data-width="120px">
-    {#each _page.stocks as :stock}
-      <option>{{:stock.name}}</option>
-    {/}
-  </select>
-
+<bidFormSelect:>
+  <span class="my-inline-input-item">
+    <boot:dropdown value={_page.newBid.stock} options={_page.stocksNames}></boot:dropdown>
+  </span>
 
 <bids:>
   <table class="table">
