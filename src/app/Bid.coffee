@@ -20,6 +20,15 @@ class Bid
     @type = jsonBid.type
     @user = jsonBid.user
 
+  asJson: ->
+    id: @id
+    stock: @stock
+    amount: @amount
+    amountLeft: @amountLeft
+    price: @price
+    type: @type
+    user: @user
+
   fetch: (model, callback) ->
     $bid = model.at "bids.#{@id}"
     $bid.fetch (err) ->
@@ -28,6 +37,9 @@ class Bid
 
   reload: (model) ->
     new Bid(model.get "bids.#{@id}")
+
+  save: (model) ->
+    model.setDiff "bids.#{@id}", @asJson()
 
   fetchMatches: (model, callback) =>
     query = model.query 'bids', @matchesQueryObj()
