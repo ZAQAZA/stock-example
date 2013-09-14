@@ -1,26 +1,37 @@
-_ = require('underscore')
-Bid = require "./Bid.coffee"
 
 module.exports =
   subscribe: (store) ->
     store.hook 'create', 'bids', (bidId, newBid, op, session, backend) ->
       model = store.createModel()
-      newBid = new Bid(newBid)
+      fetchSortedOppositeBids model, newBid, (bids, err) ->
+        console.log bids
+        throw err if err
+        model.subscribe 'bids', (err) ->
+          throw err if err
+          matcher model, bids, newBid
 
-matcher = (bid) ->
-  bid.fetchMatches model, (bids, err) ->
-    throw err if err
-    bid.fetch model, (bid, err) ->
-      throw err if err
-      match model, bid, bids
+oppisiteType = (bid) ->
+  if bid.type is 'buy' then 'sell' else 'buy'
 
-match = (model, bid, bids) ->
-  unless bids.length
+order = (type) ->
+  if type is 'buy' then -1 else 1
+
+fetchSortedOppositeBids = (model, bid, callback) ->
+  bidsQuery = model.query 'bids',
+    $query:
+      type: oppisiteType bid
+      stock: bid.stock
+    $order_by:
+      price: order(oppisiteType bid)
+  bidsQuery.fetch (err) ->
+    callback bidsQuery.get(), err
+
+matcher = (model, bids, bid) ->
+  matchedBid = findMatch bids, bid
+  unless matchedBid
     console.log 'no match found'
     return
-  execute model, bid, _.first(bids), (err) ->
-    handleErr err
-    match model, bid.reload(model), _.rest(bids)
+  execute model, bid, matchedBid
 
 findMatch = (bids, bid) ->
   match = bids[id] for id of bids when doesMatch(bids[id], bid)
