@@ -3,6 +3,14 @@
 # Used for bids related operations
 ##
 class Bid
+  # A static method used as constractor that is also
+  # fetchs the bid to the model.
+  @fetch: (model, bidId, callback) ->
+    $bid = model.at "bids.#{bidId}"
+    $bid.fetch (err) ->
+      return callback(err, null) if err
+      callback null, new Bid($bid.get())
+
   constructor: (jsonBid) ->
     @id = jsonBid.id
     @stock = jsonBid.stock
@@ -15,8 +23,8 @@ class Bid
   fetch: (model, callback) ->
     $bid = model.at "bids.#{@id}"
     $bid.fetch (err) ->
-      return callback(null, err) if err
-      callback $bid.get()
+      return callback(err, null) if err
+      callback null, $bid.get()
 
   reload: (model) ->
     new Bid(model.get "bids.#{@id}")
