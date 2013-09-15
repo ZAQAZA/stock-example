@@ -1,3 +1,4 @@
+_ = require('underscore')
 ##
 # The Bid model
 # Used for bids related operations
@@ -44,7 +45,7 @@ class Bid
   fetchMatches: (model, callback) =>
     query = model.query 'bids', @matchesQueryObj()
     query.fetch (err) ->
-      callback query.get(), err
+      callback err, _(query.get()).map((b)->new Bid(b))
 
   matchesQueryObj: ->
     if @type is 'buy'

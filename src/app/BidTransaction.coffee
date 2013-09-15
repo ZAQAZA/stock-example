@@ -1,3 +1,4 @@
+_ = require('underscore')
 async = require('async')
 ##
 # The BidTransaction class
@@ -21,10 +22,6 @@ class BidTransaction
   execute: ->
     _(@executables).each (exe) -> exe()
 
-  collectExecutables: (callback) ->
-    exeCreators = _(@operations).map((opr) -> opr()).flatten()
-    async.parallel exeCreators, callback
-
   # The operations needed to complete a transaction
   # All operations take (model, bid1, bid2)
   # and return a set of executables creators
@@ -33,6 +30,10 @@ class BidTransaction
     @updateBalance
     @updateHolding
   ]
+
+  collectExecutables: (callback) ->
+    exeCreators = _(@operations).map((op) -> op()).flatten()
+    async.parallel exeCreators, callback
 
   duplicateCreator: (creator) ->
     [async.apply(creator, @bid1), async.apply(creator, @bid2)]
@@ -146,3 +147,6 @@ updateHolding = (model, userID, stock, delta) ->
 
 min = (a,b) ->
   if a<=b then a else b
+
+module.exports = BidTransaction
+

@@ -1,31 +1,31 @@
 _ = require('underscore')
 Bid = require "./Bid.coffee"
+BidTransaction = require "./BidTransaction.coffee"
 
 module.exports =
   subscribe: (store) ->
     store.hook 'create', 'bids', (bidId, newBid, op, session, backend) ->
       model = store.createModel()
-      matcher bidId
+      matcher(model).runOn(bidId)
 
-matcher = (bidId) ->
-  Bid.fetch model, (err, bid) ->
-    throw err if err
-    bid.fetchMatches model, (err, bids) ->
+matcher = (model) ->
+
+  match = (bid, bids) ->
+    return unless bids.length
+    execute bid, _.first(bids), (err) ->
+      return (handleErr err) if err
+      match bid.reload(model), _.rest(bids)
+
+  execute = (newBid, oldBid, callback) ->
+    BidTransaction.create model, newBid, oldBid, (err, transaction) ->
+      return callback(err) if err
+      callback null, transaction.execute()
+
+  runOn: (bidId) ->
+    Bid.fetch model, bidId, (err, bid) ->
       throw err if err
-      console.log 'no matches found' unless bids.length
-      match model, bid, bids
+      bid.fetchMatches model, (err, bids) ->
+        throw err if err
+        console.log 'no matches found' unless bids.length
+        match bid, bids
 
-match = (model, bid, bids) ->
-  unless bids.length
-    return
-  execute model, bid, _.first(bids), (err) ->
-    return (handleErr err) if err
-    match model, bid.reload(model), _.rest(bids)
-
-execute = (model, newBid, oldBid, callback) ->
-  BidTransaction.create model, newBid, oldBid, (err, transaction) ->
-    return callback(err) if err
-    callback null, transaction.execute()
-
-handleErr = (err) ->
-  throw err if err
