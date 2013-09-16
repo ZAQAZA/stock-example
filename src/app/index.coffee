@@ -1,14 +1,17 @@
+_ = require('underscore')
 app = require('derby').createApp(module)
-  .use(require 'derby-ui-boot')
   .use(require '../../ui/index.coffee')
   .use(require 'derby-auth/components/index.coffee')
 
-withContexts = (model, callback, contexts) ->
+(require 'derby-ui-boot') app,
+  styles: __dirname + '/../../bootstrap-css/bootstrap.min'
+
+withContexts = (model, contexts, callback) ->
   if contexts.length is 0
     callback()
     return
   contexts[0] model, ->
-    withContexts model, callback, contexts[1..contexts.length-1]
+    withContexts model, contexts[1..contexts.length-1], callback
 
 loggedInUser = (model) ->
   model.get "_session.userId"
@@ -75,30 +78,32 @@ app.on 'model', (model) ->
   model.fn 'all', ->
     true
 
+  model.fn 'pluckNames', (items) ->
+    _(items).map (item) ->
+      text: item.name
+      value: item.id
+
 # ROUTES #
 
 app.get '/', (page, model) ->
-  withContexts model, ->
+  withContexts model, [withUser], ->
     page.render 'home'
-  , [withUser]
 
 app.get '/stocks', (page, model) ->
-  withContexts model, ->
+  withContexts model, [withUser, withAllStocks], ->
     page.render 'stocks'
-  , [withUser, withAllStocks]
 
 app.get '/inventory', (page, model) ->
-  withContexts model, ->
+  withContexts model, withAllUserCollections.concat(withAllStocks), ->
+    model.start 'pluckNames', '_page.stocksNames', 'stocks'
     page.render 'inventory'
-  , withAllUserCollections.concat withAllStocks
 
-app.enter '/inventory', (model) ->
-  $('select').selectpicker()
+#app.enter '/inventory', (model) ->
+  #$('select').selectpicker()
 
 app.get '/admin', (page, model) ->
-  withContexts model, ->
+  withContexts model, withAll, ->
     page.render 'admin'
-  , withAll
 
 myAlert = (log, obj) ->
   cache = []
@@ -152,10 +157,6 @@ app.fn 'bids.add', (e) ->
   $model = @model
   newItem = $model.del '_page.newBid'
   return unless newItem
-  find_id_by_name = (name) ->
-    for stock in $model.get '_page.stocks'
-      return stock.id if stock.name is name
-  newItem['stock'] = find_id_by_name $('.bid-stock-select').val()
   newItem['amountLeft'] = newItem.amount
   newItem['user'] = $model.get '_session.userId'
   $model.add "bids", newItem

@@ -25,7 +25,9 @@
     "coffee-script": "~1.6.2",
     "mongoskin": "~0.5.0",
     "derby-auth": "git://github.com/lefnire/derby-auth.git#0.5",
-    "nconf": "~0.6.7"
+    "nconf": "~0.6.7",
+    "underscore": "~1.5.1",
+    "async": "~0.2.9"
   },
   "engines": {
     "node": "0.10.x"
