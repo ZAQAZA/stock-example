@@ -47,6 +47,9 @@ class Bid
     query.fetch (err) ->
       callback err, _(query.get()).map((b)->new Bid(b))
 
+  live: ->
+    @amountLeft > 0
+
   matchesQueryObj: ->
     if @type is 'buy'
       $query:

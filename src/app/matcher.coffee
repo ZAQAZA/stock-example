@@ -11,15 +11,18 @@ module.exports =
 matcher = (model) ->
 
   match = (bid, bids) ->
-    return unless bids.length
-    execute bid, _.first(bids), (err) ->
-      return (handleErr err) if err
-      match bid.reload(model), _.rest(bids)
+    return unless shouldContinue(bid, bids)
+    execute bid, _.first(bids), (err, stop) ->
+      throw err if err
+      match bid.reload(model), _.rest(bids) unless stop
 
   execute = (newBid, oldBid, callback) ->
     BidTransaction.create model, newBid, oldBid, (err, transaction) ->
-      return callback(err) if err
-      callback null, transaction.execute()
+      transaction.execute()
+      callback(err)
+
+  shouldContinue = (bid, bids) ->
+    bids.length > 0 and bid.live()
 
   runOn: (bidId) ->
     Bid.fetch model, bidId, (err, bid) ->
