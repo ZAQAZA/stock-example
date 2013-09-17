@@ -23,56 +23,55 @@ class BidTransaction
     _(@executables).each (exe) -> exe()
 
   collectExecutables: (callback) =>
-    exeCreators = _.chain(@operations()).map((op) -> op()).flatten().value()
-    async.parallel exeCreators, callback
+    async.parallel @operations(), callback
 
-  # The operations needed to complete a transaction
-  # All operations take (model, bid1, bid2)
-  # and return a set of executables creators
-  operations: => [
-    @updateBids
-    @updateBalances
-    @updateHoldings
-  ]
+  operations: => _.chain([
+    @bidModifier
+    @balanceModifier
+    @holdingModifier
+  ]).map(@modifierToOperation).map(@applyOnBids).flatten().value()
 
-  duplicateCreator: (creator) =>
+  applyOnBids: (creator) =>
     [async.apply(creator, @bid1), async.apply(creator, @bid2)]
 
-  updateBids: =>
-    @duplicateCreator (bid, callback) =>
-      callback null, =>
-        bid.amountLeft -= @values.amount
-        bid.save(@model)
+  modifierToOperation: (modifier) ->
+    async.apply generalOperation, modifier
 
-  updateBalances: =>
-    @duplicateCreator (bid, callback) =>
-      sum = if bid.type is 'sell' then @values.sum else -@values.sum
-      $user = @model.at "auths.#{bid.user}"
-      $user.fetch (err) ->
-        return callback(err) if err
-        callback null, ->
-          $user.increment "balance", sum
+  generalOperation: (modifier, bid, callback) =>
+    {test, fetch, modify} = modifier bid
+    err = preTest()
+    return callback err if err
+    fetch (err) ->
+      callback err, ->
+        modify()
 
-  updateHoldings: =>
-    @duplicateCreator (bid, callback) =>
-      delta = if bid.type is 'buy' then @values.amount else -@values.amount
-      $holdingQuery = @model.query 'holdings',
-        user: bid.user
-        stock: bid.stock
-      $holdingQuery.fetch (err) =>
-        return callback(err) if err
-        holdings = $holdingQuery.get()
-        if holdings.length
-          id = holdings[0].id
-          callback null, =>
-            @model.increment "holdings.#{id}.amount", delta
-        else
-          callback(new Error('negative amount and no holding found!')) if delta < 0
-          callback null, =>
-            @model.add 'holdings',
-              user: bid.user
-              stock: bid.stock
-              amount: delta
+  bidModifier: (bid) =>
+    test: ->
+    fetch: (cb) -> cb()
+    modify: =>
+      bid.amountLeft -= @values.amount
+      bid.save(@model)
+
+  balanceModifier: (bid) =>
+    $user = @model.at "auths.#{bid.user}"
+    sum = if bid.type is 'sell' then @values.sum else -@values.sum
+    test: ->
+    fetch: $user.fetch
+    modify: -> $user.increment "balance", sum
+
+  holdingModifier: (bid) =>
+    delta = if bid.type is 'buy' then @values.amount else -@values.amount
+    $query = @model.query 'holdings',
+      user: bid.user
+      stock: bid.stock
+    test: ->
+    fetch: (cb) ->
+      $query.fetch (err) ->
+        cb(err) if err
+        cb(new Error('negative amount and no holding found!')) if $query.get().length and delta < 0
+    modify: =>
+      return @model.increment("holdings.#{holdings[0].id}.amount", delta) if $query.get().length
+      @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta }
 
   calculateTransactionValues: ->
     {buy, sell} = @sort()
