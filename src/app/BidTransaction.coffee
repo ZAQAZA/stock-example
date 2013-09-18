@@ -86,7 +86,9 @@ class BidTransaction
       return new Error('Not enough stocks') if holdings().length and holdings()[0].amount + delta < 0
     modify: =>
       return @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta } unless holdings().length
-      @model.increment("holdings.#{holdings()[0].id}.amount", delta)
+      holding = holdings()[0]
+      @model.increment("holdings.#{holding.id}.amount", delta)
+      @model.del "holdings.#{holding.id}" if holding.amount is 0
 
 module.exports = BidTransaction
 
