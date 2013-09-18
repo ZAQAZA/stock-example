@@ -33,21 +33,20 @@ withUser = (model, callback) ->
     model.ref "_page.user.balance", $balance
     callback()
 
-withUserCollection = (collection, alias) ->
+withUserCollection = (collection, queryObj={}, alias=collection) ->
   (model, callback) ->
-    query = model.query collection,
-      user: loggedInUser model
+    query = model.query collection, _.extend(queryObj, {user: loggedInUser model})
     query.subscribe (err) ->
       throw err if err
-      query.ref "_page.user.#{alias || collection}"
+      query.ref "_page.user.#{alias}"
       callback()
 
-withAllCollection = (collection, alias) ->
+withAllCollection = (collection, alias=collection) ->
   (model, callback) ->
     itemsQuery = model.query collection, {}
     itemsQuery.subscribe (err) ->
       throw err if err
-      itemsQuery.ref "_page.#{alias || collection}"
+      itemsQuery.ref "_page.#{alias}"
       callback()
 
 ### It used to be filters, but it had problems now it's queries
@@ -61,9 +60,10 @@ withAllCollection = (collection, alias) ->
       callback()
 ###
 
-withUserHoldings = withUserCollection 'holdings', 'inventory'
-withUserBids = withUserCollection 'bids'
-withAllUserCollections = [withUser, withUserHoldings, withUserBids]
+withUserHoldings = withUserCollection 'holdings', {}, 'inventory'
+withUserActiveBids = withUserCollection 'bids', {amountLeft: {$gt: 0}}
+withUserDeadBids = withUserCollection 'bids', {amountLeft: 0}, 'deadBids'
+withAllUserCollections = [withUser, withUserHoldings, withUserActiveBids, withUserDeadBids]
 
 withAllStocks = withAllCollection 'stocks'
 withAllHoldings = withAllCollection 'holdings', 'inventory'
@@ -197,3 +197,8 @@ app.view.fn 'changeHandler', (change) ->
 # READY FUNCTION #
 
 app.ready (model) ->
+  $ ->
+    $('.dead-bids-toggle').click (e) ->
+      $('.dead-bids-list').removeClass('hidden').slideToggle()
+      e.preventDefault()
+
