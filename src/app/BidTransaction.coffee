@@ -22,6 +22,16 @@ class BidTransaction
   execute: =>
     _(@executables).each (exe) -> exe()
 
+  calculateTransactionValues: ->
+    {buy, sell} = @sort()
+    amount = Math.min buy.amountLeft, sell.amountLeft
+    sum = amount * sell.price
+    @values = {amount, sum}
+
+  sort: ->
+    buy: if @bid1.type is 'buy' then @bid1 else @bid2
+    sell: if @bid1.type is 'sell' then @bid1 else @bid2
+
   collectExecutables: (callback) =>
     async.parallel @operations(), callback
 
@@ -34,20 +44,22 @@ class BidTransaction
   applyOnBids: (creator) =>
     [async.apply(creator, @bid1), async.apply(creator, @bid2)]
 
-  modifierToOperation: (modifier) ->
-    async.apply generalOperation, modifier
+  modifierToOperation: (modifier) =>
+    async.apply @generalOperation, modifier
 
   generalOperation: (modifier, bid, callback) =>
-    {test, fetch, modify} = modifier bid
-    err = preTest()
-    return callback err if err
+    {fetch, test, modify} = modifier bid
     fetch (err) ->
-      callback err, ->
-        modify()
+      err = err || test() # test is not called if fetch returned an err
+      callback err, modify # we return the modify function anyway but it shouldn't be executed if err is not null
 
+  ##
+  # Modifiers
+  # A modifier ...
+  ##
   bidModifier: (bid) =>
-    test: ->
     fetch: (cb) -> cb()
+    test: ->
     modify: =>
       bid.amountLeft -= @values.amount
       bid.save(@model)
@@ -55,8 +67,10 @@ class BidTransaction
   balanceModifier: (bid) =>
     $user = @model.at "auths.#{bid.user}"
     sum = if bid.type is 'sell' then @values.sum else -@values.sum
+
+    fetch: (cb) -> $user.fetch(cb) # wanted to simply pass $user.fetch, but fetch is not bound to this.
     test: ->
-    fetch: $user.fetch
+      new Error('Not enough cash') if $user.get('balance') + sum < 0
     modify: -> $user.increment "balance", sum
 
   holdingModifier: (bid) =>
@@ -64,24 +78,15 @@ class BidTransaction
     $query = @model.query 'holdings',
       user: bid.user
       stock: bid.stock
+    holdings = -> $query.get()
+
+    fetch: (cb) -> $query.fetch(cb)
     test: ->
-    fetch: (cb) ->
-      $query.fetch (err) ->
-        cb(err) if err
-        cb(new Error('negative amount and no holding found!')) if $query.get().length and delta < 0
+      new Error('Negative amount and no holding found!') if holdings.length is 0 and delta < 0
+      new Error('Not enough stocks') if holdings.length and holdings[0].amount + delta < 0
     modify: =>
-      return @model.increment("holdings.#{holdings[0].id}.amount", delta) if $query.get().length
-      @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta }
-
-  calculateTransactionValues: ->
-    {buy, sell} = @sort()
-    amount = Math.min buy.amountLeft, sell.amountLeft
-    sum = amount * sell.price
-    @values = {amount, sum}
-
-  sort: ->
-    buy: if @bid1.type is 'buy' then @bid1 else @bid2
-    sell: if @bid1.type is 'sell' then @bid1 else @bid2
+      return @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta } unless $query.get().length
+      @model.increment("holdings.#{$query.get()[0].id}.amount", delta)
 
 module.exports = BidTransaction
 
