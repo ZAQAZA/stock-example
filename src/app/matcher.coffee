@@ -12,17 +12,20 @@ matcher = (model) ->
 
   match = (bid, bids) ->
     return unless shouldContinue(bid, bids)
-    execute bid, _.first(bids), (err, stop) ->
-      throw err if err
-      match bid.reload(model), _.rest(bids) unless stop
+    execute bid, _.first(bids), (err) ->
+      return handle err if err
+      match bid.reload(model), _.rest(bids)
 
   execute = (newBid, oldBid, callback) ->
     BidTransaction.create model, newBid, oldBid, (err, transaction) ->
-      transaction.execute()
+      transaction.execute() unless err
       callback(err)
 
   shouldContinue = (bid, bids) ->
     bids.length > 0 and bid.live()
+
+  handle = (err) ->
+    console.log err
 
   runOn: (bidId) ->
     Bid.fetch model, bidId, (err, bid) ->

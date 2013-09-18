@@ -82,11 +82,11 @@ class BidTransaction
 
     fetch: (cb) -> $query.fetch(cb)
     test: ->
-      new Error('Negative amount and no holding found!') if holdings.length is 0 and delta < 0
-      new Error('Not enough stocks') if holdings.length and holdings[0].amount + delta < 0
+      return new Error('Negative amount and no holding found!') if holdings().length is 0 and delta < 0
+      return new Error('Not enough stocks') if holdings().length and holdings()[0].amount + delta < 0
     modify: =>
-      return @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta } unless $query.get().length
-      @model.increment("holdings.#{$query.get()[0].id}.amount", delta)
+      return @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta } unless holdings().length
+      @model.increment("holdings.#{holdings()[0].id}.amount", delta)
 
 module.exports = BidTransaction
 
