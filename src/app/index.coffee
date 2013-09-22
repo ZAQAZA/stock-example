@@ -199,6 +199,6 @@ app.view.fn 'changeHandler', (change) ->
 app.ready (model) ->
   $ ->
     $('.dead-bids-toggle').click (e) ->
-      $('.dead-bids-list').removeClass('hidden').slideToggle()
+      $('.dead-bids-list').slideToggle()
       e.preventDefault()
 
