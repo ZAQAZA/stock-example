@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "derby": "0.5.x",
-    "derby-ui-boot": "0.1.x",
+    "derby-ui-boot": "git://github.com/ZAQAZA/derby-ui-boot.git",
     "livedb-mongo": "~0.2.0",
     "racer-browserchannel": "~0.1.0",
     "express": "~3.2.5",
@@ -24,7 +24,7 @@
     "coffeeify": "~0.4.0",
     "coffee-script": "~1.6.2",
     "mongoskin": "~0.5.0",
-    "derby-auth": "git://github.com/lefnire/derby-auth.git#0.5",
+    "derby-auth": "git://github.com/ZAQAZA/derby-auth.git#0.5",
     "nconf": "~0.6.7",
     "underscore": "~1.5.1",
     "async": "~0.2.9"
