@@ -15,6 +15,8 @@ matcher = require '../app/matcher'
 expressApp = module.exports = express()
 
 # Get Redis configuration
+console.log "******************************************"
+console.log process.env.REDISCLOUD_URL
 if process.env.REDISCLOUD_URL
   redisUrl = require('url').parse(process.env.REDISCLOUD_URL)
   redis = require('redis').createClient(redisUrl.port, redisUrl.hostname)
