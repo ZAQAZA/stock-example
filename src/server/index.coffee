@@ -19,6 +19,8 @@ console.log "******************************************"
 console.log process.env.REDISCLOUD_URL
 if process.env.REDISCLOUD_URL
   redisUrl = require('url').parse(process.env.REDISCLOUD_URL)
+  console.log "#######################################"
+  console.log redisUrl.hostname
   redis = require('redis').createClient(redisUrl.port, redisUrl.hostname)
   redis.auth(redisUrl.auth.split(":")[1])
   console.log "finished redis"
