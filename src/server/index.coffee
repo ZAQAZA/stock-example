@@ -29,7 +29,7 @@ else if conf.get('REDIS_HOST')
   redis = require("redis").createClient conf.get('REDIS_PORT'), conf.get('REDIS_HOST')
   redis.auth conf.get('REDIS_PASSWORD')
 else
-  console.log "BBBBBBBBBBBBBB"
+  console.log "BBBBBBBBBBB"
   redis = require("redis").createClient()
 redis.select conf.get('REDIS_DB')
 
