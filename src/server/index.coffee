@@ -25,9 +25,11 @@ if process.env.REDISCLOUD_URL
   redis.auth(redisUrl.auth.split(":")[1])
   console.log "finished redis"
 else if conf.get('REDIS_HOST')
+  console.log "AAAAAAAAAAAA"
   redis = require("redis").createClient conf.get('REDIS_PORT'), conf.get('REDIS_HOST')
   redis.auth conf.get('REDIS_PASSWORD')
 else
+  console.log "BBBBBBBBBBBBBB"
   redis = require("redis").createClient()
 redis.select conf.get('REDIS_DB')
 
