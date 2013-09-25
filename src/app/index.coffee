@@ -98,9 +98,6 @@ app.get '/inventory', (page, model) ->
     model.start 'pluckNames', '_page.stocksNames', 'stocks'
     page.render 'inventory'
 
-#app.enter '/inventory', (model) ->
-  #$('select').selectpicker()
-
 app.get '/admin', (page, model) ->
   withContexts model, withAll, ->
     page.render 'admin'
@@ -196,7 +193,7 @@ app.view.fn 'changeHandler', (change) ->
 
 # READY FUNCTION #
 
-app.ready (model) ->
+app.enter '/inventory', (model) ->
   $ ->
     $('.dead-bids-toggle').click (e) ->
       $('.dead-bids-list').slideToggle()
