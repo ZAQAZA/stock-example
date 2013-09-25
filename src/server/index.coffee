@@ -32,8 +32,9 @@ mongo = liveDbMongo(mongoUrl + '?auto_reconnect', safe: true)
 
 # The store creates models and syncs data
 store = derby.createStore
-  db: mongo
-  redis: redis
+  db:
+    db: mongo
+    redis: redis
 
 store.on 'bundle', (browserify) ->
   browserify.transform coffeeify
