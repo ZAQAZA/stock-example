@@ -6,6 +6,7 @@ app = require('derby').createApp(module)
 (require 'derby-ui-boot') app,
   styles: __dirname + '/../../bootstrap-css/bootstrap.min'
 
+# TODO should consider replacing this with async.waterfull
 withContexts = (model, contexts, callback) ->
   if contexts.length is 0
     callback()
