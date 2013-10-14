@@ -39,7 +39,7 @@ class BidTransaction
     @bidModifier
     @balanceModifier
     @holdingModifier
-  ]).map(@modifierToOperation).map(@applyOnBids).flatten().value()
+  ]).map(@modifierToOperation).map(@applyOnBids).flatten().union([@logTransaction]).value()
 
   applyOnBids: (creator) =>
     [async.apply(creator, @bid1), async.apply(creator, @bid2)]
@@ -89,6 +89,9 @@ class BidTransaction
       holding = holdings()[0]
       @model.increment("holdings.#{holding.id}.amount", delta)
       @model.del "holdings.#{holding.id}" if holding.amount is 0
+
+  logTransaction: (cb) =>
+    cb()
 
 module.exports = BidTransaction
 
