@@ -20,13 +20,13 @@
         <a href="/logout">Logout</a>
         <derby-auth:changePassword />
     {{else}}
-        {{#if _page.registered}}
+        {#if _page.registered}
           <derby-auth:login />
           <br>
           <a x-bind="click: login.toggle">Not a Member?</a>
-        {{else}}
+        {else}
           <derby-auth:register />
           <a x-bind="click: login.toggle">Already a Member?</a>
-        {{/}}
+        {/}
     {{/}}
     </p>
