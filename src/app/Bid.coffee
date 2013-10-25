@@ -39,8 +39,8 @@ class Bid
   reload: (model) ->
     new Bid(model.get "bids.#{@id}")
 
-  save: (model) ->
-    model.setDiff "bids.#{@id}", @asJson()
+  save: (model, cb) ->
+    model.setDiff "bids.#{@id}", @asJson(), cb
 
   fetchMatches: (model, callback) =>
     query = model.query 'bids', @matchesQueryObj()
