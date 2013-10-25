@@ -27,7 +27,7 @@ else
 redis.select conf.get('REDIS_DB')
 
 # Get Mongo configuration
-mongoUrl = if conf.get('NODE_ENV') is "production" then conf.get('MONGO_URL_REMOTE') else conf.get('MONGO_URL_LOCAL')
+mongoUrl = if conf.get('NODE_ENV') is "production" then conf.get('MONGOHQ_URL') else conf.get('MONGO_URL_LOCAL')
 mongo = liveDbMongo(mongoUrl + '?auto_reconnect', safe: true)
 
 # The store creates models and syncs data

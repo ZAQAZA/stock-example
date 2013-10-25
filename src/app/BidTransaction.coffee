@@ -19,8 +19,8 @@ class BidTransaction
       @executables = executables
       callback err, @
 
-  execute: =>
-    _(@executables).each (exe) -> exe()
+  execute: (cb) =>
+    async.parallel @executables, cb
 
   calculateTransactionValues: ->
     {buy, sell} = @sort()
@@ -60,9 +60,9 @@ class BidTransaction
   bidModifier: (bid) =>
     fetch: (cb) -> cb()
     test: ->
-    modify: =>
+    modify: (cb) =>
       bid.amountLeft -= @values.amount
-      bid.save(@model)
+      bid.save @model, cb
 
   balanceModifier: (bid) =>
     $user = @model.at "auths.#{bid.user}"
@@ -71,7 +71,7 @@ class BidTransaction
     fetch: (cb) -> $user.fetch(cb) # wanted to simply pass $user.fetch, but fetch is not bound to this.
     test: ->
       new Error('Not enough cash') if $user.get('balance') + sum < 0
-    modify: -> $user.increment "balance", sum
+    modify: (cb) -> $user.increment "balance", sum, cb
 
   holdingModifier: (bid) =>
     delta = if bid.type is 'buy' then @values.amount else -@values.amount
@@ -84,11 +84,12 @@ class BidTransaction
     test: ->
       return new Error('Negative amount and no holding found!') if holdings().length is 0 and delta < 0
       return new Error('Not enough stocks') if holdings().length and holdings()[0].amount + delta < 0
-    modify: =>
-      return @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta } unless holdings().length
+    modify: (cb) =>
+      return @model.add 'holdings', { user: bid.user, stock: bid.stock, amount: delta }, cb unless holdings().length
       holding = holdings()[0]
-      @model.increment("holdings.#{holding.id}.amount", delta)
-      @model.del "holdings.#{holding.id}" if holding.amount is 0
+      @model.increment "holdings.#{holding.id}.amount", delta, =>
+        return @model.del "holdings.#{holding.id}", cb if holding.amount is 0
+        cb()
 
   logTransaction: (cb) =>
     cb()
