@@ -26,7 +26,10 @@ class BidTransaction
     {buy, sell} = @sort()
     amount = Math.min buy.amountLeft, sell.amountLeft
     sum = amount * sell.price
-    @values = {amount, sum}
+    seller = sell.user
+    buyer = buy.user
+    stock = sell.stock
+    @values = {seller, buyer, amount, sum, stock}
 
   sort: ->
     buy: if @bid1.type is 'buy' then @bid1 else @bid2
@@ -92,7 +95,9 @@ class BidTransaction
         cb()
 
   logTransaction: (cb) =>
-    cb()
+    newTransaction = @values
+    cb null, =>
+      @model.add "transactions", newTransaction
 
 module.exports = BidTransaction
 
