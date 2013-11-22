@@ -1,0 +1,30 @@
+<transactions:>
+  <div class="transactions">
+    <h3>Transactions Log</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Seller</th>
+          <th>Buyer</th>
+          <th>Stock</th>
+          <th>Amount</th>
+          <th>Sum</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each _page.transactions as :transaction}
+          <app:transaction />
+        {/}
+      </tbody>
+    </table>
+  </div>
+
+<transaction:>
+  <tr>
+    <td>{{auths[:transaction.seller].local.username}}</td>
+    <td>{{auths[:transaction.buyer].local.username}}</td>
+    <td>{{stocks[:transaction.stock].name}}</td>
+    <td>{{:transaction.amount}}</td>
+    <td>{{:transaction.sum}}</td>
+    <td><button class="btn btn-danger btn-small" x-bind="click: transaction.remove">Remove</button></td>
+  </tr>

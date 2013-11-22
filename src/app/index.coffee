@@ -70,8 +70,9 @@ withAllStocks = withAllCollection 'stocks'
 withAllHoldings = withAllCollection 'holdings', 'inventory'
 withAllBids = withAllCollection 'bids'
 withAllUsers = withAllCollection 'auths', 'users'
+withAllTransactions = withAllCollection 'transactions'
 
-withAll = [withUser, withAllStocks, withAllHoldings, withAllBids, withAllUsers]
+withAll = [withUser, withAllStocks, withAllHoldings, withAllBids, withAllUsers, withAllTransactions]
 
 # REACTIVE FUNCTIONS #
 
@@ -168,6 +169,10 @@ app.fn 'bids.buy', (e) ->
 
 app.fn 'bids.sell', (e) ->
   @model.set '_page.newBid.type', 'sell'
+
+app.fn 'transaction.remove', (e) ->
+  transaction = e.get ':transaction'
+  @model.del 'transactions.' + transaction.id
 
 # VIEW FUNCTIONS #
 

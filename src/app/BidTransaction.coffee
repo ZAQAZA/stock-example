@@ -26,7 +26,10 @@ class BidTransaction
     {buy, sell} = @sort()
     amount = Math.min buy.amountLeft, sell.amountLeft
     sum = amount * sell.price
-    @values = {amount, sum}
+    seller = sell.user
+    buyer = buy.user
+    stock = sell.stock
+    @values = {seller, buyer, amount, sum, stock}
 
   sort: ->
     buy: if @bid1.type is 'buy' then @bid1 else @bid2
@@ -39,7 +42,7 @@ class BidTransaction
     @bidModifier
     @balanceModifier
     @holdingModifier
-  ]).map(@modifierToOperation).map(@applyOnBids).flatten().value()
+  ]).map(@modifierToOperation).map(@applyOnBids).flatten().union([@logTransaction]).value()
 
   applyOnBids: (creator) =>
     [async.apply(creator, @bid1), async.apply(creator, @bid2)]
@@ -90,6 +93,11 @@ class BidTransaction
       @model.increment "holdings.#{holding.id}.amount", delta, =>
         return @model.del "holdings.#{holding.id}", cb if holding.amount is 0
         cb()
+
+  logTransaction: (cb) =>
+    newTransaction = @values
+    cb null, =>
+      @model.add "transactions", newTransaction
 
 module.exports = BidTransaction
 
