@@ -96,6 +96,7 @@ class BidTransaction
 
   logTransaction: (cb) =>
     newTransaction = @values
+    newTransaction['timestamp'] = +new Date()
     cb null, =>
       @model.add "transactions", newTransaction
 

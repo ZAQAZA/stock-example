@@ -50,6 +50,22 @@ withAllCollection = (collection, alias=collection) ->
       itemsQuery.ref "_page.#{alias}"
       callback()
 
+withStocksTransactions = (model, stocks, callback) ->
+  contexts = _(stocks).map (stock) ->
+    id = stock.id
+    (model, cb) ->
+      query = model.query 'transactions', {stock: id}
+      query.subscribe (err) ->
+        throw err if err
+        query.ref "_page.transactions.#{id}"
+        cb()
+  withContexts model, contexts, callback
+
+startStockPrices = (model) ->
+  _(model.get "_page.stocks").each (stock) ->
+    id = stock.id
+    model.start 'stockPrice', "_page.stockPrices.#{id}.price", "_page.transactions.#{id}"
+
 ### It used to be filters, but it had problems now it's queries
 # maybe we'll try filters again when it becomes more stable.
 withAllCollection = (collection, alias) ->
@@ -85,6 +101,10 @@ app.on 'model', (model) ->
       text: item.name
       value: item.id
 
+  model.fn 'stockPrice', (stockTransactions) ->
+    lastTransaction = _(stockTransactions).max (transaction) -> transaction.timestamp
+    lastTransaction.sum / lastTransaction.amount
+
 # ROUTES #
 
 app.get '/', (page, model) ->
@@ -93,7 +113,9 @@ app.get '/', (page, model) ->
 
 app.get '/stocks', (page, model) ->
   withContexts model, [withUser, withAllStocks], ->
-    page.render 'stocks'
+    withStocksTransactions model, model.get('stocks'), ->
+      startStockPrices model
+      page.render 'stocks'
 
 app.get '/inventory', (page, model) ->
   withContexts model, withAllUserCollections.concat(withAllStocks), ->

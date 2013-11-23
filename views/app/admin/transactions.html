@@ -9,6 +9,7 @@
           <th>Stock</th>
           <th>Amount</th>
           <th>Sum</th>
+          <th>Timestamp</th>
         </tr>
       </thead>
       <tbody>
@@ -26,5 +27,6 @@
     <td>{{stocks[:transaction.stock].name}}</td>
     <td>{{:transaction.amount}}</td>
     <td>{{:transaction.sum}}</td>
+    <td>{{:transaction.timestamp}}</td>
     <td><button class="btn btn-danger btn-small" x-bind="click: transaction.remove">Remove</button></td>
   </tr>
