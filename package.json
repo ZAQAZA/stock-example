@@ -27,7 +27,8 @@
     "derby-auth": "git://github.com/ZAQAZA/derby-auth.git#0.5",
     "nconf": "~0.6.7",
     "underscore": "~1.5.1",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "racer-access": "git://github.com/codeparty/racer-access#master"
   },
   "engines": {
     "node": "0.10.x"

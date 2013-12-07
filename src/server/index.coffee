@@ -10,7 +10,9 @@ mongoskin = require 'mongoskin'
 publicDir = require('path').join __dirname + '/../../public'
 conf = require 'nconf'
 hooker = require './hook'
-matcher = require '../app/matcher'
+racerAccess = require 'racer-access'
+matcher = require './matcher'
+access = require './accessControl'
 
 expressApp = module.exports = express()
 
@@ -39,7 +41,9 @@ store = derby.createStore
 store.on 'bundle', (browserify) ->
   browserify.transform coffeeify
 
-hooker(store)
+derby.use racerAccess
+access store
+hooker store
 matcher.subscribe store
 
 ###
