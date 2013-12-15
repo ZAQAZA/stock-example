@@ -2,13 +2,7 @@ _ = require('underscore')
 Bid = require "./Bid.coffee"
 BidTransaction = require "./BidTransaction.coffee"
 
-module.exports =
-  subscribe: (store) ->
-    store.hook 'create', 'bids', (bidId, newBid, op, session, backend) ->
-      model = store.createModel()
-      matcher(model)(bidId)
-
-matcher = (model) ->
+module.exports = (model) ->
 
   match = (bid, bids) ->
     return unless bids.length > 0

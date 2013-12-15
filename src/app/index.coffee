@@ -26,12 +26,15 @@ withUser = (model, callback) ->
   $user = model.at "auths.#{userId}"
   $username = $user.at "local.username"
   $balance = $user.at "balance"
+  $exeBalance = $user.at "exercisableBalance"
   model.subscribe $user, (err) ->
     throw err if err
     $balance.setNull '', 1000.0
+    $exeBalance.setNull '', 1000.0
     model.ref "_page.user.local", $user.at "local"
     model.ref "_page.user.name", $username
     model.ref "_page.user.balance", $balance
+    model.ref "_page.user.exercisableBalance", $exeBalance
     callback()
 
 withUserCollection = (collection, queryObj={}, alias=collection) ->
@@ -178,6 +181,9 @@ app.fn 'bids.add', (e) ->
   $model = @model
   newItem = $model.del '_page.newBid'
   return unless newItem
+  if newItem.type is 'illegal'
+    alert 'error'
+    return
   newItem['amountLeft'] = newItem.amount
   newItem['user'] = $model.get '_session.userId'
   $model.add "bids", newItem
@@ -188,6 +194,7 @@ app.fn 'bid.remove', (e) ->
 
 app.fn 'bids.buy', (e) ->
   @model.set '_page.newBid.type', 'buy'
+  @model.set '_page.newBid.type', 'illegal' if false
 
 app.fn 'bids.sell', (e) ->
   @model.set '_page.newBid.type', 'sell'

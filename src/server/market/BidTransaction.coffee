@@ -94,11 +94,11 @@ class BidTransaction
         return @model.del "holdings.#{holding.id}", cb if holding.amount is 0
         cb()
 
-  logTransaction: (cb) =>
+  logTransaction: (callback) =>
     newTransaction = @values
     newTransaction['timestamp'] = +new Date()
-    cb null, =>
-      @model.add "transactions", newTransaction
+    callback null, (cb)=>
+      @model.add "transactions", newTransaction, cb
 
 module.exports = BidTransaction
 

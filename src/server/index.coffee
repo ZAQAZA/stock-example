@@ -11,7 +11,7 @@ publicDir = require('path').join __dirname + '/../../public'
 conf = require 'nconf'
 hooker = require './hook'
 racerAccess = require 'racer-access'
-matcher = require './matcher'
+market = require './market'
 access = require './accessControl'
 
 expressApp = module.exports = express()
@@ -44,7 +44,7 @@ store.on 'bundle', (browserify) ->
 derby.use racerAccess
 access store
 hooker store
-matcher.subscribe store
+market.subscribe store
 
 ###
 (1)
