@@ -26,15 +26,12 @@ withUser = (model, callback) ->
   $user = model.at "auths.#{userId}"
   $username = $user.at "local.username"
   $balance = $user.at "balance"
-  $exeBalance = $user.at "exercisableBalance"
   model.subscribe $user, (err) ->
     throw err if err
     $balance.setNull '', 1000.0
-    $exeBalance.setNull '', 1000.0
     model.ref "_page.user.local", $user.at "local"
     model.ref "_page.user.name", $username
     model.ref "_page.user.balance", $balance
-    model.ref "_page.user.exercisableBalance", $exeBalance
     callback()
 
 withUserCollection = (collection, queryObj={}, alias=collection) ->
@@ -108,6 +105,10 @@ app.on 'model', (model) ->
     lastTransaction = _(stockTransactions).max (transaction) -> transaction.timestamp
     lastTransaction.sum / lastTransaction.amount
 
+  model.fn 'exercisableBalance', (userBids, balance) ->
+    sum = (bid) -> bid.amountLeft * bid.price
+    balance - _.chain(userBids).filter((b) -> b.type is "buy").reduce(((s, b) -> s + sum(b)), 0).value()
+
 # ROUTES #
 
 app.get '/', (page, model) ->
@@ -123,6 +124,7 @@ app.get '/stocks', (page, model) ->
 app.get '/inventory', (page, model) ->
   withContexts model, withAllUserCollections.concat(withAllStocks), ->
     model.start 'pluckNames', '_page.stocksNames', 'stocks'
+    model.start 'exercisableBalance', '_page.user.exercisableBalance', '_page.user.bids', '_page.user.balance'
     page.render 'inventory'
 
 app.get '/admin', (page, model) ->
