@@ -184,7 +184,7 @@ app.fn 'bids.add', (e) ->
   newItem = $model.del '_page.newBid'
   return unless newItem
   if newItem.type is 'illegal'
-    alert 'error'
+    alert 'You cannot bid anymore!'
     return
   newItem['amountLeft'] = newItem.amount
   newItem['user'] = $model.get '_session.userId'
@@ -195,8 +195,13 @@ app.fn 'bid.remove', (e) ->
   @model.del 'bids.' + bid.id
 
 app.fn 'bids.buy', (e) ->
+  illegal = =>
+    amount = @model.get '_page.newBid.amount'
+    price = @model.get '_page.newBid.price'
+    exe = @model.get '_page.user.exercisableBalance'
+    amount*price > exe
   @model.set '_page.newBid.type', 'buy'
-  @model.set '_page.newBid.type', 'illegal' if false
+  @model.set '_page.newBid.type', 'illegal' if illegal()
 
 app.fn 'bids.sell', (e) ->
   @model.set '_page.newBid.type', 'sell'
