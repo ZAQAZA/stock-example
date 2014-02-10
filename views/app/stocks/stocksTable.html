@@ -19,6 +19,6 @@
   <tr class={stockRowClass(.)}>
     <td>{:stock.name}</td>
     <td>{:stock.price}</td>
-    <td>{_page.stockPrices[:stock.id].price}</td>
+    <td><span class={_page.stockPrices[.id].status}>{priceHandler(_page.stockPrices[.id].price)}</span></td>
     <td>{changeHandler(:stock.change)}%</td>
   </tr>

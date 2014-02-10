@@ -66,6 +66,13 @@ startStockPrices = (model) ->
     id = stock.id
     model.start 'stockPrice', "_page.stockPrices.#{id}.price", "_page.transactions.#{id}"
 
+nicePriceChange = (model) ->
+  model.on 'change', '_page.stockPrices.*.price', (id) ->
+    model.set "_page.stockPrices.#{id}.status", 'changed'
+    setTimeout ->
+      model.set "_page.stockPrices.#{id}.status", null
+    , 1100
+
 ### It used to be filters, but it had problems now it's queries
 # maybe we'll try filters again when it becomes more stable.
 withAllCollection = (collection, alias) ->
@@ -213,7 +220,7 @@ app.fn 'transaction.remove', (e) ->
 # VIEW FUNCTIONS #
 
 app.view.fn 'priceHandler',
-  get: (price) -> price
+  get: (price) -> price.toFixed(2)
   set: (price) ->
     [if isNaN(parseFloat price) then 0 else parseFloat price]
 
@@ -241,3 +248,4 @@ app.enter '/inventory', (model) ->
       $('.dead-bids-list').slideToggle()
       e.preventDefault()
 
+app.enter '/stocks', nicePriceChange

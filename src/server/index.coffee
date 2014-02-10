@@ -12,6 +12,7 @@ conf = require 'nconf'
 hooker = require './hook'
 racerAccess = require 'racer-access'
 market = require './market'
+maker = require './maker'
 access = require './accessControl'
 
 expressApp = module.exports = express()
@@ -45,6 +46,7 @@ derby.use racerAccess
 access store
 hooker store
 market.subscribe store
+maker.run store
 
 ###
 (1)
