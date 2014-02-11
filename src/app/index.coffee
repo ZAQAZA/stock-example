@@ -42,9 +42,14 @@ withUserCollection = (collection, queryObj={}, alias=collection) ->
       query.ref "_page.user.#{alias}"
       callback()
 
-withAllCollection = (collection, alias=collection) ->
+withAllCollection = (collection, alias=collection, limit) ->
   (model, callback) ->
-    itemsQuery = model.query collection, {}
+    queryObj =
+      $orderby:
+        timestamp: -1
+      $limit: limit
+    queryObj = {} unless limit
+    itemsQuery = model.query collection, queryObj
     itemsQuery.subscribe (err) ->
       throw err if err
       itemsQuery.ref "_page.#{alias}"
@@ -54,7 +59,11 @@ withStocksTransactions = (model, stocks, callback) ->
   contexts = _(stocks).map (stock) ->
     id = stock.id
     (model, cb) ->
-      query = model.query 'transactions', {stock: id}
+      query = model.query 'transactions',
+        stock: id
+        $orderby:
+          timestamp: -1
+        $limit: 3
       query.subscribe (err) ->
         throw err if err
         query.ref "_page.transactions.#{id}"
@@ -64,7 +73,7 @@ withStocksTransactions = (model, stocks, callback) ->
 startStockPrices = (model) ->
   _(model.get "_page.stocks").each (stock) ->
     id = stock.id
-    model.start 'stockPrice', "_page.stockPrices.#{id}.price", "_page.transactions.#{id}"
+    model.start 'stockPrice', "_page.stockPrices.#{id}.price", "_page.transactions.#{id}" # TODO only a few recent transactions should suffice
 
 nicePriceChange = (model) ->
   model.on 'change', '_page.stockPrices.*.price', (id) ->
@@ -93,7 +102,7 @@ withAllStocks = withAllCollection 'stocks'
 withAllHoldings = withAllCollection 'holdings', 'inventory'
 withAllBids = withAllCollection 'bids'
 withAllUsers = withAllCollection 'auths', 'users'
-withAllTransactions = withAllCollection 'transactions'
+withAllTransactions = withAllCollection 'transactions', 'transactions', 5
 
 withAll = [withUser, withAllStocks, withAllHoldings, withAllBids, withAllUsers, withAllTransactions]
 
