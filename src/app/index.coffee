@@ -220,7 +220,7 @@ app.fn 'transaction.remove', (e) ->
 # VIEW FUNCTIONS #
 
 app.view.fn 'priceHandler',
-  get: (price) -> price.toFixed(2)
+  get: (price) -> price?.toFixed(2)
   set: (price) ->
     [if isNaN(parseFloat price) then 0 else parseFloat price]
 
