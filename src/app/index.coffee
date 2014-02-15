@@ -65,9 +65,28 @@ withStock = (name, model, callback) ->
     stock.subscribe ->
       model.ref "_page.stock", stock
       startStockPrice model, stock.get()
-      withStocksTransactions model, [stock.get()], callback
+      withStocksTransactions model, [stock.get()], null, ->
+        model.ref "_page.stockTransactions", "_page.transactions.#{stockId}"
+        model.ref "_page.lastTransaction.#{stockId}.0", "_page.stockTransactions.0"
+        callback()
 
-withStocksTransactions = (model, stocks, callback) ->
+withStocksTransactions = (model, stocks, limit, callback) ->
+  contexts = _(stocks).map (stock) ->
+    id = stock.id
+    (model, cb) ->
+      queryObj =
+        stock: id
+        $orderby:
+          timestamp: -1
+      queryObj['$limit'] = limit if limit
+      query = model.query 'transactions', queryObj
+      query.subscribe (err) ->
+        throw err if err
+        query.ref "_page.transactions.#{id}"
+        cb()
+  withContexts model, contexts, callback
+
+withStocksLastTransaction = (model, stocks, callback) ->
   contexts = _(stocks).map (stock) ->
     id = stock.id
     (model, cb) ->
@@ -75,15 +94,15 @@ withStocksTransactions = (model, stocks, callback) ->
         stock: id
         $orderby:
           timestamp: -1
-        $limit: 3
+        $limit: 1
       query.subscribe (err) ->
         throw err if err
-        query.ref "_page.transactions.#{id}"
+        query.ref "_page.lastTransaction.#{id}"
         cb()
   withContexts model, contexts, callback
 
 startStockPrice = (model, stock) ->
-  model.start 'stockPrice', "_page.stockPrices.#{stock.id}.price", "_page.transactions.#{stock.id}"
+  model.start 'stockPrice', "_page.stockPrices.#{stock.id}.price", "_page.lastTransaction.#{stock.id}.0"
 
 startAllStockPrices = (model) ->
   _(model.get "_page.stocks").each _.partial(startStockPrice, model)
@@ -130,9 +149,8 @@ app.on 'model', (model) ->
       text: item.name
       value: item.id
 
-  model.fn 'stockPrice', (stockTransactions) ->
-    return unless stockTransactions?.length is 3
-    lastTransaction = _(stockTransactions).max (transaction) -> transaction?.timestamp
+  model.fn 'stockPrice', (lastTransaction) ->
+    return unless lastTransaction
     value: lastTransaction.sum / lastTransaction.amount
     timestamp: lastTransaction.timestamp
 
@@ -148,7 +166,7 @@ app.get '/', (page, model) ->
 
 app.get '/stocks', (page, model) ->
   withContexts model, [withUser, withAllStocks], ->
-    withStocksTransactions model, model.get('_page.stocks'), ->
+    withStocksLastTransaction model, model.get('_page.stocks'), ->
       startAllStockPrices model
       page.render 'stocks'
 

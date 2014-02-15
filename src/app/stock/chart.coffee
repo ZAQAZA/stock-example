@@ -32,31 +32,20 @@ module.exports = do ->
         text: "All"
       ]
       inputEnabled: false
-      selected: 0
+      selected: 1
 
-  series = ->
+  series = (initialPoints) ->
     series: [
       name: "Price"
-      data: (->
-        data = []
-        time = (new Date()).getTime()
-        i = -60
-        while i <= 0
-          data.push [
-            time + i * 1000
-            (Math.random())
-          ]
-          i++
-        data
-      )()
+      data: initialPoints
     ]
 
   chartWrapper = (chart) ->
     addPrice: (time, price) ->
       chart.series[0].addPoint [time, price], true, true
 
-  render: (ready) ->
+  render: (initialPoints, ready) ->
     $ ->
-      $("#chart-container").highcharts "StockChart", (_.extend {}, general(), chart(ready), range(), series())
+      $("#chart-container").highcharts "StockChart", (_.extend {}, general(), chart(ready), range(), series(initialPoints))
 
 
