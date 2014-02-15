@@ -1,4 +1,5 @@
 _ = require('underscore')
+
 app = require('derby').createApp(module)
   .use(require '../../ui/index.coffee')
   .use(require 'derby-auth/components/index.coffee')
@@ -55,6 +56,17 @@ withAllCollection = (collection, alias=collection, limit) ->
       itemsQuery.ref "_page.#{alias}"
       callback()
 
+withStock = (name, model, callback) ->
+  query = model.query 'stocks', {name}
+  query.fetch (err) ->
+    throw err if err
+    stockId = query.get()[0].id
+    stock = model.at "stocks.#{stockId}"
+    stock.subscribe ->
+      model.ref "_page.stock", stock
+      startStockPrice model, stock.get()
+      withStocksTransactions model, [stock.get()], callback
+
 withStocksTransactions = (model, stocks, callback) ->
   contexts = _(stocks).map (stock) ->
     id = stock.id
@@ -70,17 +82,18 @@ withStocksTransactions = (model, stocks, callback) ->
         cb()
   withContexts model, contexts, callback
 
-startStockPrices = (model) ->
-  _(model.get "_page.stocks").each (stock) ->
-    id = stock.id
-    model.start 'stockPrice', "_page.stockPrices.#{id}.price", "_page.transactions.#{id}" # TODO only a few recent transactions should suffice
+startStockPrice = (model, stock) ->
+  model.start 'stockPrice', "_page.stockPrices.#{stock.id}.price", "_page.transactions.#{stock.id}"
+
+startAllStockPrices = (model) ->
+  _(model.get "_page.stocks").each _.partial(startStockPrice, model)
 
 nicePriceChange = (model) ->
   model.on 'change', '_page.stockPrices.*.price', (id) ->
     model.set "_page.stockPrices.#{id}.status", 'changed'
     setTimeout ->
       model.set "_page.stockPrices.#{id}.status", null
-    , 1100
+    , 5000
 
 ### It used to be filters, but it had problems now it's queries
 # maybe we'll try filters again when it becomes more stable.
@@ -118,8 +131,10 @@ app.on 'model', (model) ->
       value: item.id
 
   model.fn 'stockPrice', (stockTransactions) ->
-    lastTransaction = _(stockTransactions).max (transaction) -> transaction.timestamp
-    lastTransaction.sum / lastTransaction.amount
+    return unless stockTransactions?.length is 3
+    lastTransaction = _(stockTransactions).max (transaction) -> transaction?.timestamp
+    value: lastTransaction.sum / lastTransaction.amount
+    timestamp: lastTransaction.timestamp
 
   model.fn 'exercisableBalance', (userBids, balance) ->
     sum = (bid) -> bid.amountLeft * bid.price
@@ -133,9 +148,13 @@ app.get '/', (page, model) ->
 
 app.get '/stocks', (page, model) ->
   withContexts model, [withUser, withAllStocks], ->
-    withStocksTransactions model, model.get('stocks'), ->
-      startStockPrices model
+    withStocksTransactions model, model.get('_page.stocks'), ->
+      startAllStockPrices model
       page.render 'stocks'
+
+app.get '/stock/:name', (page, model, params) ->
+  withContexts model, [withUser, _.partial(withStock, params.name)], ->
+    page.render 'stock'
 
 app.get '/inventory', (page, model) ->
   withContexts model, withAllUserCollections.concat(withAllStocks), ->
@@ -258,3 +277,5 @@ app.enter '/inventory', (model) ->
       e.preventDefault()
 
 app.enter '/stocks', nicePriceChange
+
+require('./stock/index.coffee')(app)

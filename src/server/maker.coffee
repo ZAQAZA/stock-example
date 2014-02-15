@@ -4,7 +4,7 @@ randomChange = ->
   Math.round((Math.random()*50 - 25) * 10) / 1000
 
 randomInterval = ->
-  Math.floor(Math.random()*10) * 1000
+  Math.random()*3 * 1000
 
 createMaker = (model, stockId) ->
 
@@ -39,5 +39,5 @@ module.exports =
   run: (store) ->
     model = store.createModel()
     fetchStocks model, (stocks) ->
-      _(stocks).map (s) ->
-        createMaker model, s.id
+      _.chain(stocks).map((s) -> s.id).each (id) ->
+        createMaker model, id

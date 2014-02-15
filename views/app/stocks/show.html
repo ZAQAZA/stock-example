@@ -1,0 +1,6 @@
+<import: src="../layouts/portal" ns="">
+
+<Body:>
+<app:layout title="{{_page.stock.name}} - {priceHandler(_page.stockPrices[_page.stock.id].price.value)}">
+    <div id="chart-container" style="height: 500px; min-width: 500px"></div>
+  </app:layout>
